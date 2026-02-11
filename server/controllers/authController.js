@@ -6,7 +6,7 @@ import sendEmail from "../utils/sendEmail.js";
 
 const generateAccessToken = (userId) => {
     return jwt.sign({userId}, process.env.JWT_SECRET, {
-        expiresIn: "15m"
+        expiresIn: "1d"
     });
 };
 
@@ -20,8 +20,10 @@ const generateRefreshToken = (userId) => {
 
 
 export const register = async (req, res) => {
+ 
     try{
         const { name, email, password } = req.body;
+         console.log("REGISTER BODY:", req.body);
 
         const userExists = await User.findOne({email});
 
@@ -91,8 +93,6 @@ export const loginUser = async (req, res) => {
 }
 
 
-
-
 export const refreshAccessToken = async (req, res) => {
   const token = req.cookies.refreshToken;
 
@@ -115,6 +115,29 @@ export const refreshAccessToken = async (req, res) => {
     res.status(403).json({ message: "Token expired" });
   }
 };
+
+export const logoutUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.isLoggedIn = false;
+    user.refreshToken = null;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 
 export const protect = async (req, res, next) => {
@@ -141,6 +164,75 @@ export const protect = async (req, res, next) => {
 };
 
 
+export const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+  
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    if (user.role !== "admin") {
+      return res.status(403).json({ message: "Admin access only" });
+    }
+
+    
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = refreshToken;
+    user.isLoggedIn = true;
+    await user.save();
+
+   
+    res.status(200).json({
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Admin login failed" });
+  }
+};
+
+
+export const logoutAdmin = async (req, res) => {
+  try {
+    console.log("Logout triggered for user ID:", req.user?._id); 
+
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+       console.log("User not found in DB");
+       return res.status(404).json({ message: "User not found" });
+    }
+
+    user.refreshToken = null;
+    user.isLoggedIn = false;
+    
+    const savedUser = await user.save();
+    console.log("DB Update Success:", savedUser.isLoggedIn); 
+
+    res.status(200).json({ message: "Logged out" });
+  } catch (error) {
+    console.error("Logout Controller Error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
 
 export const adminOnly = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
@@ -163,7 +255,7 @@ export const forgotPassword = async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   user.forgotPasswordOtp = otp;
-  user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+  user.forgotPasswordOtpExpire = Date.now() + 10 * 60 * 1000;  // 10 minutes
   await user.save();
 
   await sendEmail(
