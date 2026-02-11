@@ -1,6 +1,6 @@
 # 🛒 ShopSphere – Full Stack E-Commerce Platform
 
-ShopSphere is a **full-stack MERN e-commerce application** built with modern technologies, focusing on **secure authentication, product management, cart & order flow, and online payments using Razorpay**.
+ShopSphere is a **full-stack MERN e-commerce application** built with modern technologies, focusing on **secure authentication, product management, cart & order flow, and online payments using Straipe**.
 
 This project is designed to simulate a **real-world production e-commerce system** and demonstrates strong backend and frontend fundamentals.
 
