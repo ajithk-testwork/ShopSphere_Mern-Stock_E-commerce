@@ -19,10 +19,10 @@ export default function ProductCard({ product }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      onClick={handleCardClick} // 4. Add click event to the main card
+      onClick={handleCardClick} 
       className="group relative w-full cursor-pointer flex flex-col"
     >
-      {/* 1. Image Canvas */}
+      
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-white border border-zinc-100">
         <motion.img
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -33,12 +33,12 @@ export default function ProductCard({ product }) {
 
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        {/* Quick Add - STOP PROPAGATION is critical here */}
+        
         <button
           onClick={(e) => {
-            e.stopPropagation(); // 5. Prevents the card click (navigation) from firing
+            e.stopPropagation(); 
             console.log("Adding:", product._id);
-            // You can call your add-to-cart logic here
+            
           }}
           className="absolute right-3 top-3 z-10 p-3 bg-white/90 backdrop-blur-md text-black rounded-full shadow-lg scale-0 group-hover:scale-100 transition-transform duration-300 hover:bg-black hover:text-white"
         >
@@ -52,7 +52,7 @@ export default function ProductCard({ product }) {
         </div>
       </div>
 
-      {/* 2. Content */}
+      
       <div className="mt-4 flex flex-col gap-0.5">
         <div className="flex justify-between items-start gap-4">
           <h2 className="text-[14px] font-bold tracking-tight text-zinc-900 leading-tight line-clamp-2 uppercase">

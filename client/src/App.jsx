@@ -23,6 +23,12 @@ import AdminRoute from "./Admin/components/AdminRoute";
 import AdminLayout from "./Admin/layouts/AdminLayout";
 import AdminProducts from "./Admin/pages/AdminProducts";
 import AddProductFlow from "./Admin/pages/AddProductFlow";
+import SubCategoryProducts from "./components/SubCategoryProducts";
+import ScrollToTop from "./utils/ScrollToTop";
+import ShippingAddress from "./components/ShippingAddress";
+import PaymentPage from "./components/PaymentPage";
+import PaymentSuccess from "./components/PaymentSuccess";
+import PaymentCancel from "./components/PaymentCancel";
 
 const UserLayout = () => (
   <div className="flex flex-col min-h-screen">
@@ -36,7 +42,8 @@ const UserLayout = () => (
 
 function App() {
   return (
-    <Router> {/* Router moved to top to enable hooks in AuthProvider */}
+    <Router> 
+    <ScrollToTop />
       <AuthProvider> 
         <Routes>
           {/* Public User Routes */}
@@ -44,9 +51,14 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/sub-category" element={<SubCategoryProducts />} />
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/shipping" element={<ShippingAddress />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-cancel" element={<PaymentCancel />} />
           </Route>
 
           {/* Admin Login */}

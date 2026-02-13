@@ -1,4 +1,4 @@
-import express from "express";
+import express, { application } from "express";
 import {
   adminLogin,
   adminOnly,
@@ -27,7 +27,7 @@ import {
   updateCartItem,
 } from "../controllers/cartController.js";
 import { getMyOrders, placeOrder } from "../controllers/orderController.js";
-import { createPaymentIntent } from "../controllers/paymentController.js";
+import { createCheckoutSession } from "../controllers/paymentController.js";
 
 const router = express.Router();
 
@@ -106,6 +106,8 @@ router.post("/orders", protect, placeOrder);
 router.get("/orders/my-orders", protect, getMyOrders);
 
 //Payment
-router.post("/payments/create", protect, createPaymentIntent);
+router.post("/payments/create", protect, createCheckoutSession);
+
+//router.post("/payments/webhook", express.raw({ type: application.json}), stripeWebhook);
 
 export default router;

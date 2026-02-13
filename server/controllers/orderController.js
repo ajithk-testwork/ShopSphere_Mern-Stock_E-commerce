@@ -5,6 +5,8 @@ import Cart from "../models/Cart.js";
  //  PLACE ORDER
 
 export const placeOrder = async (req, res) => {
+  const { shippingAddress } = req.body;
+
   const cart = await Cart.findOne({ user: req.user._id }).populate(
     "items.product"
   );
@@ -21,10 +23,9 @@ export const placeOrder = async (req, res) => {
   const order = await Order.create({
     user: req.user._id,
     items: cart.items,
+    shippingAddress,
     totalAmount,
   });
-
-  await Cart.deleteOne({ user: req.user._id });
 
   res.status(201).json(order);
 };

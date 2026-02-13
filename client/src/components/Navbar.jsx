@@ -16,22 +16,24 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { cartCount } = useCart();
+  const { cartCount, clearCart } = useCart();
 
-  useEffect(() => {
+useEffect(() => {
+  const loadUser = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Error parsing user from localStorage", e);
-      }
+      setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
     }
+  };
 
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  loadUser();
+  window.addEventListener("storage", loadUser);
+
+  return () => window.removeEventListener("storage", loadUser);
+}, []);
+
 
   const openAuth = (mode) => {
     setAuthMode(mode);
@@ -46,10 +48,9 @@ const Navbar = () => {
     try {
       await api.post("/auth/logout");
     } catch (error) {
-      // token may already be expired — ignore
       console.warn("Logout API failed, clearing local session anyway");
     } finally {
-      // ✅ ALWAYS clear frontend state
+      clearCart();
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
       setUser(null);
@@ -79,12 +80,11 @@ const Navbar = () => {
               ShopSphere
             </Link>
           </motion.div>
-         
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-10">
             {[
               { name: "Home", path: "/" },
-              { name: "About", path: "/about"},
+              { name: "About", path: "/about" },
               { name: "Products", path: "/products" },
               { name: "Contact", path: "/contact" },
             ].map((link) => (

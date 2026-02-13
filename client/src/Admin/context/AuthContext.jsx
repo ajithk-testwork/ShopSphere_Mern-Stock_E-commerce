@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { api } from "../../utils/api";
 
 const AuthContext = createContext();
 
@@ -15,12 +16,24 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (data, token, isAdmin = false) => {
-    const key = isAdmin ? "admin" : "user";
-    localStorage.setItem(key, JSON.stringify(data));
-    localStorage.setItem("accessToken", token);
-    isAdmin ? setAdmin(data) : setUser(data);
-  };
+
+const login = async (email, password) => {
+  try {
+    const res = await api.post("/auth/admin/login", { email, password });
+
+    
+    const { accessToken, admin } = res.data; 
+
+    localStorage.setItem("accessToken", accessToken);
+   
+    localStorage.setItem("admin", JSON.stringify(admin));
+
+    setAdmin(admin);
+    return admin;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Login failed");
+  }
+};
 
   const logout = () => {
     localStorage.clear();

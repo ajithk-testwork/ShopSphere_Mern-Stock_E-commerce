@@ -18,6 +18,15 @@ const orderSchema = new mongoose.Schema(
       },
     ],
 
+    shippingAddress: {
+      fullName: String,
+      phone: String,
+      address: String,
+      city: String,
+      postalCode: String,
+      country: String,
+    },
+
     totalAmount: {
       type: Number,
       required: true,
@@ -29,6 +38,8 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    stripePaymentIntentId: String,
+
     orderStatus: {
       type: String,
       enum: ["processing", "shipped", "delivered"],
@@ -37,5 +48,6 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 
 export default mongoose.model("Order", orderSchema);

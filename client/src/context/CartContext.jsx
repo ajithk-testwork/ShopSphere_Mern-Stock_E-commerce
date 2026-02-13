@@ -11,7 +11,7 @@ export const CartProvider = ({ children }) => {
       const res = await api.get("/carts");
       const count = res.data?.items?.reduce(
         (sum, item) => sum + item.quantity,
-        0,
+        0
       );
       setCartCount(count || 0);
     } catch {
@@ -19,12 +19,18 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const clearCart = () => {
+    setCartCount(0); 
+  };
+
   useEffect(() => {
     fetchCartCount();
   }, []);
 
+  
+
   return (
-    <CartContext.Provider value={{ cartCount, fetchCartCount }}>
+    <CartContext.Provider value={{ cartCount, fetchCartCount, clearCart }}>
       {children}
     </CartContext.Provider>
   );

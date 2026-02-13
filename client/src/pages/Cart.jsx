@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { api } from "../utils/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
+import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  const { fetchCartCount } = useCart();
+
+  const navigate = useNavigate();
 
   const fetchCart = async () => {
     try {
@@ -38,12 +44,13 @@ export default function Cart() {
     }
   };
 
-  const removeItem = async (productId) => {
+const removeItem = async (productId) => {
     try {
       await api.delete("/carts/delete", {
         data: { productId: productId.toString() },
       });
       fetchCart();
+      fetchCartCount(); 
     } catch (err) {
       console.error("Remove failed", err);
     }
@@ -195,12 +202,11 @@ export default function Cart() {
           </div>
 
           <button
-            onClick={() => alert("Checkout comes in next step 😄")}
-            className="w-full bg-white text-black py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 cursor-pointer hover:bg-gray-100 transition-all active:scale-[0.98]"
-          >
-            Checkout
-            <ArrowRight className="w-5 h-5" />
-          </button>
+  onClick={() => navigate("/shipping")}
+  className="bg-green-600 text-white px-6 py-3 rounded-lg"
+>
+  Checkout
+</button>
 
           <p className="text-center text-[10px] text-gray-500 mt-6 uppercase tracking-widest font-bold">
             Secure Encryption • 256-bit SSL

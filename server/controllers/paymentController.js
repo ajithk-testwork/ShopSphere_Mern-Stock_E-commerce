@@ -1,28 +1,50 @@
 import stripe from "../config/stripe.js";
-import Cart from "../models/Cart.js";
+import Order from "../models/Order.js";
 
+export const createCheckoutSession = async (req, res) => {
+  try {
+    const { orderId } = req.body;
 
+    console.log("Received orderId:", orderId);
 
+    const order = await Order.findById(orderId).populate("items.product");
 
-export const createPaymentIntent = async (req, res) => {
-  const cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
+    console.log("Order found:", order);
 
-  if (!cart || cart.items.length === 0) {
-    return res.status(400).json({ message: "Cart is empty" });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    console.log("Order items:", order.items);
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: order.items.map((item) => {
+        console.log("Item:", item);
+
+        const price = Number(item.product.price);
+
+        console.log("Price:", price);
+
+        return {
+          price_data: {
+            currency: "inr",
+            product_data: {
+              name: item.product.name,
+            },
+            unit_amount: Math.round(price * 100),
+          },
+          quantity: item.quantity,
+        };
+      }),
+      success_url: `http://localhost:5173/payment-success`,
+      cancel_url: `http://localhost:5173/payment-cancel`,
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error("Stripe Error:", error);
+    res.status(500).json({ message: error.message });
   }
-
-  const amount = cart.items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
-
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: amount * 100, // Stripe uses paise
-    currency: "inr",
-    metadata: { userId: req.user._id.toString() },
-  });
-
-  res.json({
-    clientSecret: paymentIntent.client_secret,
-  });
 };
