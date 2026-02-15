@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../utils/api";
+
 
 const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
   const [formData, setFormData] = useState({
@@ -19,6 +20,9 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
     setMode(newMode);
   };
 
+  
+
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -36,14 +40,19 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
             ? { email: formData.email, password: formData.password }
             : formData;
 
-        const { data } = await api.post(endpoint, payload);
+        const res = await api.post(endpoint, payload);
 
         if (mode === "login") {
-          localStorage.setItem("accessToken", data.accessToken);
-          localStorage.setItem("refreshToken", data.refreshToken); // 🔥 ADD THIS
-          localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+
+          // Store new auth
+          localStorage.setItem("accessToken", res.data.accessToken);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+          
 
           setSuccess(true);
+
 
           setTimeout(() => {
             onClose();

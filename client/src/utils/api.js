@@ -1,21 +1,32 @@
 import axios from "axios";
 
+// Create axios instance
 export const api = axios.create({
   baseURL: "http://localhost:5000/api",
   withCredentials: true,
 });
 
-// Add access token to every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+/**
+ * Helper to get valid items from localStorage.
+ * Prevents issues where "undefined" or "null" (strings) are stored,
+ * as seen in your local storage debugging screenshot.
+ */
+const getSafeItem = (key) => {
+  const value = localStorage.getItem(key);
+  if (!value || value === "undefined" || value === "null") return null;
+  return value;
+};
 
+// --- Request Interceptor ---
+api.interceptors.request.use((config) => {
+  const token = getSafeItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
 
+// --- Response Interceptor ---
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -27,7 +38,6 @@ const processQueue = (error, token = null) => {
       prom.resolve(token);
     }
   });
-
   failedQueue = [];
 };
 
@@ -36,10 +46,9 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
-    ) {
+    // Handle 401 Unauthorized errors
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -55,32 +64,42 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
+        const refreshToken = getSafeItem("refreshToken");
+
+        if (!refreshToken) {
+          throw new Error("No refresh token available");
+        }
 
         const res = await axios.post(
           "http://localhost:5000/api/auth/refresh",
           { refreshToken }
         );
 
-        const newAccessToken = res.data.accessToken;
+        const { accessToken, refreshToken: newRefreshToken } = res.data;
 
-        localStorage.setItem("accessToken", newAccessToken);
-        localStorage.setItem("refreshToken", res.data.refreshToken);
+        // Store new tokens safely
+        localStorage.setItem("accessToken", accessToken);
+        if (newRefreshToken) {
+          localStorage.setItem("refreshToken", newRefreshToken);
+        }
 
-        api.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${newAccessToken}`;
-
-        processQueue(null, newAccessToken);
+        api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+        processQueue(null, accessToken);
 
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);
 
+        // CLEAR ALL AUTH DATA - This ensures the UI updates to "Logged Out" 
+        // if the session cannot be refreshed.
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("admin");
 
-        //window.location.href = "/signin";
+        // Force Navbar/UI update
+        window.dispatchEvent(new Event("storage"));
+
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
