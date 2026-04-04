@@ -87,7 +87,7 @@ const Navbar = () => {
             <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
               <div className="w-3 h-3 bg-white rotate-45" />
             </div>
-            <span className="hidden xs:block">ShopSphere</span>
+            <span className="text-2xl sm:text-xl font-black">ShopSphere</span>
           </Link>
 
           {/* Desktop Nav */}

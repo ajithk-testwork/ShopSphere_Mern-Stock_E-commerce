@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { 
-  Edit3, Trash2, Search, X, Loader2, Package, 
-  CheckCircle, AlertCircle, Save, Camera, Image as ImageIcon 
+import {
+  Edit3, Trash2, Search, X, Loader2, Package,
+  CheckCircle, AlertCircle, Save, Camera, Image as ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,10 +13,10 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const [editProduct, setEditProduct] = useState(null); 
-  const [newImage, setNewImage] = useState(null);     
-  const [imgPreview, setImgPreview] = useState(null); 
-  const [status, setStatus] = useState(null);         
+  const [editProduct, setEditProduct] = useState(null);
+  const [newImage, setNewImage] = useState(null);
+  const [imgPreview, setImgPreview] = useState(null);
+  const [status, setStatus] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => { fetchInitialData(); }, []);
@@ -28,8 +28,8 @@ export default function AdminProducts() {
         axios.get("http://localhost:5000/api/products"),
         axios.get("http://localhost:5000/api/categories")
       ]);
-      setProducts(prodRes.data);
-      setCategories(catRes.data);
+      setProducts(prodRes.data.products);
+      setCategories(catRes.data.categories);
     } catch (err) {
       showToast("Failed to load inventory", "error");
     } finally { setLoading(false); }
@@ -60,7 +60,7 @@ export default function AdminProducts() {
     }
   };
 
-  
+
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
@@ -71,7 +71,7 @@ export default function AdminProducts() {
     formData.append("price", Number(editProduct.price));
     formData.append("stock", Number(editProduct.stock));
     formData.append("description", editProduct.description);
-    
+
     // Only append image if a new one was selected
     if (newImage) {
       formData.append("image", newImage);
@@ -81,16 +81,18 @@ export default function AdminProducts() {
       const res = await axios.put(
         `http://localhost:5000/api/products/${editProduct._id}`,
         formData,
-        { 
-          headers: { 
-            "Authorization": `Bearer ${token}`, 
-            "Content-Type": "multipart/form-data" 
-          } 
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
         }
       );
-      
+
       // Update local state with fresh data from database
-      setProducts(products.map(p => p._id === editProduct._id ? res.data : p));
+      setProducts(products.map(p =>
+        p._id === editProduct._id ? res.data.product : p
+      ));
       showToast("Inventory Updated!");
       closeModal();
     } catch (err) {
@@ -104,13 +106,21 @@ export default function AdminProducts() {
     setImgPreview(null);
   };
 
-  const filteredProducts = products.filter(p => {
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = p.name.toLowerCase().includes(searchLower) || 
-                         (p.description && p.description.toLowerCase().includes(searchLower));
-    const matchesCategory = selectedCategory === "All" || p.category?.name === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = products.filter((p) => {
+  const searchLower = searchTerm.toLowerCase();
+
+  const name = p?.name?.toLowerCase() || "";
+  const desc = p?.description?.toLowerCase() || "";
+
+  const matchesSearch =
+    name.includes(searchLower) || desc.includes(searchLower);
+
+  const matchesCategory =
+    selectedCategory === "All" ||
+    p?.category?.name === selectedCategory;
+
+  return matchesSearch && matchesCategory;
+});
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#fcfcfc]">
@@ -142,7 +152,11 @@ export default function AdminProducts() {
           <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
             className="px-4 py-3 bg-white border-none rounded-2xl shadow-sm text-sm font-bold text-gray-500 outline-none ring-1 ring-gray-100 focus:ring-blue-500 transition-all cursor-pointer hover:bg-gray-50">
             <option value="All">All Categories</option>
-            {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+            {categories?.map(c => (
+              <option key={c._id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
           </select>
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
@@ -201,7 +215,7 @@ export default function AdminProducts() {
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden">
               <div className="flex flex-col md:flex-row h-full">
-                
+
                 <div className="md:w-5/12 bg-gray-50 p-8 flex flex-col items-center justify-center border-r border-gray-100">
                   <div className="relative group w-full aspect-square rounded-[2rem] overflow-hidden shadow-inner border border-gray-200">
                     <img src={imgPreview || `http://localhost:5000${editProduct.image}`} className="w-full h-full object-cover" />
@@ -222,26 +236,26 @@ export default function AdminProducts() {
                   <form onSubmit={handleUpdateSubmit} className="space-y-6">
                     <div>
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Product Name</label>
-                      <input value={editProduct.name} onChange={(e) => setEditProduct({...editProduct, name: e.target.value})}
+                      <input value={editProduct.name} onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
                         className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm outline-none focus:ring-2 ring-blue-500/10 transition-all" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Price (₹)</label>
-                        <input type="number" value={editProduct.price} onChange={(e) => setEditProduct({...editProduct, price: e.target.value})}
+                        <input type="number" value={editProduct.price} onChange={(e) => setEditProduct({ ...editProduct, price: e.target.value })}
                           className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm outline-none focus:ring-2 ring-blue-500/10 transition-all" />
                       </div>
                       <div>
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Stock</label>
-                        <input type="number" value={editProduct.stock} onChange={(e) => setEditProduct({...editProduct, stock: e.target.value})}
+                        <input type="number" value={editProduct.stock} onChange={(e) => setEditProduct({ ...editProduct, stock: e.target.value })}
                           className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm outline-none focus:ring-2 ring-blue-500/10 transition-all" />
                       </div>
                     </div>
 
                     <div>
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Description</label>
-                      <textarea value={editProduct.description} onChange={(e) => setEditProduct({...editProduct, description: e.target.value})} rows="3"
+                      <textarea value={editProduct.description} onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })} rows="3"
                         className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm outline-none focus:ring-2 ring-blue-500/10 transition-all resize-none" />
                     </div>
 

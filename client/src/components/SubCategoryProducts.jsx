@@ -20,7 +20,7 @@ export default function SubCategoryProducts() {
         const res = await api.get("/products");
         
         
-        const filtered = res.data.filter((product) => 
+        const filtered = res.data.products.filter((product) => 
           product.category?.name?.toLowerCase() === categoryName?.toLowerCase()
         );
         

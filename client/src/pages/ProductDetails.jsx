@@ -26,7 +26,7 @@ export default function ProductDetails() {
     const fetchProduct = async () => {
       try {
         const res = await api.get(`/products/${id}`);
-        setProduct(res.data);
+        setProduct(res.data.product);
       } catch (e) {
         console.error("Failed to load product", e);
       } finally {

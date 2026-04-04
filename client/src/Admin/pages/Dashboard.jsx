@@ -8,29 +8,31 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        
-        const [prodRes, catRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/products"),
-          axios.get("http://localhost:5000/api/categories")
-        ]);
+  const fetchStats = async () => {
+    try {
+      const [prodRes, catRes] = await Promise.all([
+        axios.get("http://localhost:5000/api/products"),
+        axios.get("http://localhost:5000/api/categories")
+      ]);
 
-        setCounts({
-          products: prodRes.data.length,
-          categories: catRes.data.length,
-          orders: 0 
-        });
-      } catch (err) {
-        console.error("Error fetching dashboard stats:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setCounts({
+        products: prodRes.data.products.length || 0,
+        categories: catRes.data.length || 0,
+        orders: 0
+      });
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchStats();
-  }, []);
+  fetchStats(); // first load
+
+  const interval = setInterval(fetchStats, 3000); // 🔁 every 3 sec
+
+  return () => clearInterval(interval); // cleanup
+}, []);
 
   const stats = [
     { title: "Total Products", value: counts.products, icon: Package, color: "text-blue-600", bg: "bg-blue-50" },

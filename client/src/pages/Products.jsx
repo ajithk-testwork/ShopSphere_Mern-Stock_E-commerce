@@ -9,7 +9,7 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         const res = await api.get("/products");
-        setProducts(res.data);
+        setProducts(res.data.products);
       } catch (err) {
         console.error("Error fetching products", err);
       }
