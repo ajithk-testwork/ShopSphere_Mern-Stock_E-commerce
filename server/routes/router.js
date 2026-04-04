@@ -1,4 +1,4 @@
-import express, { application } from "express";
+import express from "express";
 import {
   adminLogin,
   adminOnly,
@@ -12,6 +12,14 @@ import {
   resetPassword,
   verifyOtp,
 } from "../controllers/authController.js";
+
+import {
+  createCategory,
+  deleteCategory,
+  getCategories,
+} from "../controllers/categoryController.js";
+import uploadCategoryImage from "../middleware/uploadCategoryImage.js";
+
 import {
   createProduct,
   deleteProduct,
@@ -38,7 +46,7 @@ router.post("/refresh", refreshAccessToken);
 router.post("/auth/forgot-password", forgotPassword);
 router.post("/auth/verify-otp", verifyOtp);
 router.post("/auth/reset-password", resetPassword);
-router.get("/users/profile/", protect, (req, res) => {
+router.get("/users/profile", protect, (req, res) => {
   res.json({
     message: "Protected profile data",
     user: req.user,
@@ -58,13 +66,6 @@ router.post("/auth/admin/logout", protect,adminOnly, logoutAdmin);
 router.get("/products", getProduct);
 router.get("/products/:id", getProductId);
 
-// create Category
-import {
-  createCategory,
-  deleteCategory,
-  getCategories,
-} from "../controllers/categoryController.js";
-import uploadCategoryImage from "../middleware/uploadCategoryImage.js";
 
 // CATEGORY ROUTES
 router.post(
