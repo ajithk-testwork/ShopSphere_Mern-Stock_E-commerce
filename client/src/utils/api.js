@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance
 export const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://shopsphere-mern-stock-e-commerce.onrender.com/api",
   withCredentials: true,
 });
 
