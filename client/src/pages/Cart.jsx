@@ -115,7 +115,7 @@ const removeItem = async (productId) => {
                 {/* Product Image Container */}
                 <div className="w-24 h-24 bg-white rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100 flex items-center justify-center p-2 group-hover:bg-gray-50 transition-colors">
                   <img
-                    src={`http://localhost:5000${item.product.image}`}
+                    src={`https://shopsphere-mern-stock-e-commerce.onrender.com${item.product.image}`}
                     alt={item.product.name}
                     
     
