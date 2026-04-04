@@ -18,7 +18,7 @@ import {
   deleteCategory,
   getCategories,
 } from "../controllers/categoryController.js";
-import uploadCategoryImage from "../middleware/uploadCategoryImage.js";
+import uploadCategoryImage from "../middleware/UploadCategoryImage.js";
 
 import {
   createProduct,
