@@ -45,8 +45,14 @@ export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({ message: "Invalid Email" });
+    }
+
+    // ❌ BLOCK ADMIN LOGIN HERE
+    if (user.role !== "user") {
+      return res.status(403).json({ message: "User access only" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -59,7 +65,7 @@ export const loginUser = async (req, res) => {
 
     user.refreshToken = refreshToken;
     user.isLoggedIn = true;
-    user.save();
+    await user.save();
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -130,6 +136,7 @@ export const logoutUser = async (req, res) => {
 export const protect = async (req, res, next) => {
   let token;
 
+  // ✅ Check header first
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -137,18 +144,27 @@ export const protect = async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   }
 
+  // ✅ OR check cookie
+  if (!token && req.cookies.refreshToken) {
+    token = req.cookies.refreshToken;
+  }
+
   if (!token) {
-    return res.status(401).json({ message: "Not authorized, token missing" });
+    return res.status(401).json({ message: "Token missing" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.userId).select("-password");
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Token invalid or expired" });
+    res.status(401).json({ message: "Invalid token" });
   }
 };
+
 
 export const adminLogin = async (req, res) => {
   try {
@@ -222,6 +238,7 @@ export const logoutAdmin = async (req, res) => {
 };
 
 export const adminOnly = (req, res, next) => {
+  console.log("USER:", req.user);
   if (req.user && req.user.role === "admin") {
     next();
   } else {

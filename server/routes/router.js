@@ -13,7 +13,7 @@ import {
   verifyOtp,
 } from "../controllers/authController.js";
 import {
-  createPrdouct,
+  createProduct,
   deleteProduct,
   getProduct,
   getProductId,
@@ -88,7 +88,7 @@ router.post(
   protect,
   adminOnly,
   upload.single("image"),
-  createPrdouct,
+  createProduct,
 );
 router.put("/products/:id", protect, adminOnly,upload.single("image"), updateProduct);
 router.delete("/products/:id", protect, adminOnly, deleteProduct);
