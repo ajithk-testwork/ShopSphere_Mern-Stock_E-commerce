@@ -18,7 +18,7 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // 👈 your frontend URL
+    origin: "https://shop-sphere-mern-stock-e-commerce-c.vercel.app/", // 👈 your frontend URL
     credentials: true,
   })
 );
