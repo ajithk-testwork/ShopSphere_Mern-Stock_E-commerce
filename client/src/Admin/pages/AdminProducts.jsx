@@ -25,8 +25,8 @@ export default function AdminProducts() {
     try {
       setLoading(true);
       const [prodRes, catRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/products"),
-        axios.get("http://localhost:5000/api/categories")
+        axios.get("https://shopsphere-mern-stock-e-commerce.onrender.com/api/products"),
+        axios.get("https://shopsphere-mern-stock-e-commerce.onrender.com/api/categories")
       ]);
       setProducts(prodRes.data.products);
       setCategories(catRes.data.categories);
@@ -44,7 +44,7 @@ export default function AdminProducts() {
     if (!window.confirm("Permanent delete?")) return;
     try {
       const token = localStorage.getItem("accessToken");
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      await axios.delete(`https://shopsphere-mern-stock-e-commerce.onrender.com/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(products.filter(p => p._id !== id));
@@ -79,7 +79,7 @@ export default function AdminProducts() {
 
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/products/${editProduct._id}`,
+        `https://shopsphere-mern-stock-e-commerce.onrender.com/api/products/${editProduct._id}`,
         formData,
         {
           headers: {
@@ -181,7 +181,7 @@ export default function AdminProducts() {
               <motion.tr layout key={p._id} className="group hover:bg-gray-50/30 transition-colors">
                 <td className="px-8 py-5">
                   <div className="flex items-center gap-4">
-                    <img src={`http://localhost:5000${p.image}`} className="w-14 h-14 rounded-2xl object-cover shadow-sm border border-gray-100" />
+                    <img src={`https://shopsphere-mern-stock-e-commerce.onrender.com${p.image}`} className="w-14 h-14 rounded-2xl object-cover shadow-sm border border-gray-100" />
                     <div>
                       <p className="font-bold text-gray-900 leading-tight">{p.name}</p>
                       <p className="text-blue-600 font-black text-sm mt-1">₹{p.price.toLocaleString()}</p>
@@ -218,7 +218,7 @@ export default function AdminProducts() {
 
                 <div className="md:w-5/12 bg-gray-50 p-8 flex flex-col items-center justify-center border-r border-gray-100">
                   <div className="relative group w-full aspect-square rounded-[2rem] overflow-hidden shadow-inner border border-gray-200">
-                    <img src={imgPreview || `http://localhost:5000${editProduct.image}`} className="w-full h-full object-cover" />
+                    <img src={imgPreview || `https://shopsphere-mern-stock-e-commerce.onrender.com${editProduct.image}`} className="w-full h-full object-cover" />
                     <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white">
                       <Camera size={32} />
                       <span className="text-[10px] font-black uppercase mt-2">Change Image</span>

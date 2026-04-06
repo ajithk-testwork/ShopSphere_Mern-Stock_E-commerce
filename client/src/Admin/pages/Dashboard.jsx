@@ -11,8 +11,8 @@ export default function Dashboard() {
   const fetchStats = async () => {
     try {
       const [prodRes, catRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/products"),
-        axios.get("http://localhost:5000/api/categories")
+        axios.get("https://shopsphere-mern-stock-e-commerce.onrender.com/api/products"),
+        axios.get("https://shopsphere-mern-stock-e-commerce.onrender.com/api/categories")
       ]);
 
       setCounts({
