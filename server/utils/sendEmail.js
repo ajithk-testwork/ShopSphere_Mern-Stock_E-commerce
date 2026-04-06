@@ -2,6 +2,8 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (to, subject, text) => {
   try {
+    console.log("📩 Sending email to:", to);
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -10,16 +12,16 @@ const sendEmail = async (to, subject, text) => {
       },
     });
 
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"ShopSphere" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text,
     });
 
-    console.log("Email sent successfully ✅");
+    console.log("✅ Email sent:", info.response);
   } catch (error) {
-    console.error("Email failed ❌:", error.message);
+    console.error("❌ Email failed:", error);
   }
 };
 

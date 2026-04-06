@@ -260,9 +260,15 @@ export const forgotPassword = async (req, res) => {
   user.forgotPasswordOtpExpire = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-  console.log("OTP:", otp); // ✅ TEMP
+  sendEmail(
+  email,
+  "ShopSphere Password Reset OTP",
+  `Your OTP is ${otp}. It expires in 10 minutes.`
+).catch((err) => {
+  console.error("Email Error:", err);
+});
 
-  res.json({ message: "OTP sent (console)" });
+res.json({ message: "OTP sent to email" });
 };
 
 export const verifyOtp = async (req, res) => {
