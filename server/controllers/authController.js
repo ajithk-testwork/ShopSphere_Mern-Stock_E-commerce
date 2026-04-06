@@ -257,16 +257,12 @@ export const forgotPassword = async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   user.forgotPasswordOtp = otp;
-  user.forgotPasswordOtpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+  user.forgotPasswordOtpExpire = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-  await sendEmail(
-    email,
-    "ShopSphere Password Reset OTP",
-    `Your OTP is ${otp}. It expires in 10 minutes.`,
-  );
+  console.log("OTP:", otp); // ✅ TEMP
 
-  res.json({ message: "OTP sent to email" });
+  res.json({ message: "OTP sent (console)" });
 };
 
 export const verifyOtp = async (req, res) => {
