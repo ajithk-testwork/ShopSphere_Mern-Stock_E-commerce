@@ -1,27 +1,19 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (to, subject, text) => {
   try {
     console.log("📩 Sending email to:", to);
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    const info = await transporter.sendMail({
-      from: `"ShopSphere" <${process.env.EMAIL_USER}>`,
+    const data = await resend.emails.send({
+      from: "onboarding@resend.dev", // default sender
       to,
       subject,
-      text,
+      html: `<p>${text}</p>`,
     });
 
-    console.log("✅ Email sent:", info.response);
+    console.log("✅ Email sent:", data);
   } catch (error) {
     console.error("❌ Email failed:", error);
   }
