@@ -15,12 +15,19 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleModeChange = (newMode) => {
-    setError("");
-    setMode(newMode);
-  };
+ const handleModeChange = (newMode) => {
+  setError("");
+  setFormData({
+    name: "",
+    email: formData.email, 
+    password: "",
+    otp: "",
+    newPassword: "",
+  });
+  setMode(newMode);
+};
 
-  
+
 
 
   const handleChange = (e) => {
@@ -49,7 +56,7 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
           // Store new auth
           localStorage.setItem("accessToken", res.data.accessToken);
           localStorage.setItem("user", JSON.stringify(res.data.user));
-          
+
 
           setSuccess(true);
 
@@ -110,7 +117,7 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
           <InputField
             label="Enter 6-Digit OTP"
             name="otp"
-            type="text"
+            type="number"
             placeholder="123456"
             value={formData.otp}
             onChange={handleChange}
