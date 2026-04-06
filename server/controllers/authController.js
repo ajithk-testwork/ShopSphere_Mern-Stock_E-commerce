@@ -274,7 +274,11 @@ export const verifyOtp = async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (!user || user.forgotPasswordOtp !== otp || user.otpExpiry < Date.now()) {
+  if (
+    !user ||
+    user.forgotPasswordOtp !== otp ||
+    user.forgotPasswordOtpExpire < Date.now()
+  ) {
     return res.status(400).json({ message: "Invalid or expired OTP" });
   }
 
@@ -293,8 +297,9 @@ export const resetPassword = async (req, res) => {
 
   user.password = hashedPassword;
   user.forgotPasswordOtp = undefined;
-  user.otpExpiry = undefined;
+  user.forgotPasswordOtpExpire = undefined;
   user.refreshToken = undefined;
+  
 
   await user.save();
 
