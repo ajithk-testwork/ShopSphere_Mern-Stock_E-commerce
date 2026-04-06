@@ -8,7 +8,7 @@ const sendEmail = async (to, subject, text) => {
     console.log("📩 Sending email to:", to);
 
     const data = await resend.emails.send({
-      from: "onboarding@resend.dev", // default sender
+      from: "ajithk102002@gmail.com", // default sender
       to,
       subject,
       html: `<p>${text}</p>`,
