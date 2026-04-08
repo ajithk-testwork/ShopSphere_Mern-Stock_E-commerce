@@ -22,9 +22,11 @@ export default function ProductDetails() {
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const imageUrl = product.image?.startsWith("http")
-  ? product.image
-  : `https://shopsphere-mern-stock-e-commerce.onrender.com${product.image}`;
+const imageUrl = product?.image
+  ? product.image.startsWith("http")
+    ? product.image
+    : `https://shopsphere-mern-stock-e-commerce.onrender.com${product.image}`
+  : "https://via.placeholder.com/600";
 
   useEffect(() => {
     const fetchProduct = async () => {
