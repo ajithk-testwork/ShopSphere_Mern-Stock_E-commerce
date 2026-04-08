@@ -7,8 +7,12 @@ export default function ProductCard({ product }) {
   const navigate = useNavigate(); // 2. Initialize navigate
   const BASE_URL = import.meta.env.VITE_API_URL;
   const imageUrl = product.image
-  ? `${BASE_URL}${product.image}`
+  ? product.image.startsWith("http")
+    ? product.image   // ✅ Cloudinary image
+    : `${BASE_URL}${product.image}` // ✅ old local image
   : "https://via.placeholder.com/600";
+
+console.log("FINAL IMAGE:", imageUrl);
 
   // 3. Navigation handler
   const handleCardClick = () => {
