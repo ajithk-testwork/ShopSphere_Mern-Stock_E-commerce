@@ -22,6 +22,10 @@ export default function ProductDetails() {
     setTimeout(() => setMessage(null), 3000);
   };
 
+  const imageUrl = product.image?.startsWith("http")
+  ? product.image
+  : `https://shopsphere-mern-stock-e-commerce.onrender.com${product.image}`;
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -87,7 +91,7 @@ export default function ProductDetails() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-start">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="relative aspect-square bg-[#F9FAFB] rounded-[2.5rem] overflow-hidden border border-gray-100 flex items-center justify-center p-8 lg:p-12">
-          <img src={`https://shopsphere-mern-stock-e-commerce.onrender.com${product.image}`} alt={product.name} className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 hover:scale-105" />
+          <img src={imageUrl} alt={product.name} className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 hover:scale-105" />
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col h-full py-2">
