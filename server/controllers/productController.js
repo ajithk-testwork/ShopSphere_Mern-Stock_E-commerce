@@ -34,7 +34,7 @@ export const createProduct = async (req, res) => {
       category,
       stock: stock || 0,
       description: description || "",
-      image: `/uploads/productimages/${req.file.filename}`,
+      image: req.file.path,
       createdBy: req.user._id,
     });
 
