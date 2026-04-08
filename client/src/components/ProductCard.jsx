@@ -5,10 +5,10 @@ import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate(); // 2. Initialize navigate
-  const backendBaseUrl = api.defaults.baseURL.replace("/api", "");
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const imageUrl = product.image
-    ? `${backendBaseUrl}${product.image}`
-    : "https://via.placeholder.com/600";
+  ? `${BASE_URL}${product.image}`
+  : "https://via.placeholder.com/600";
 
   // 3. Navigation handler
   const handleCardClick = () => {
