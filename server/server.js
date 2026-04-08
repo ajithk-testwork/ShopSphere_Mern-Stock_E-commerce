@@ -18,7 +18,7 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: ["https://shop-sphere-mern-stock-e-commerce-m.vercel.app",
+    origin: ["https://shop-sphere-mern-stock-e-commerce-v.vercel.app",
             "http://localhost:5173"],
     credentials: true,
   })
