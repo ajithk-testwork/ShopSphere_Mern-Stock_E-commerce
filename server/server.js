@@ -7,7 +7,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./routes/router.js";
 
-import path from "path";
+import path from "path";  
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);

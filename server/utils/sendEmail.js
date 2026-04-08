@@ -1,22 +1,34 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-console.log("RESEND KEY:", process.env.RESEND_API_KEY);
+dotenv.config();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 const sendEmail = async (to, subject, text) => {
   try {
-    console.log("📩 Sending email to:", to);
-
-    const data = await resend.emails.send({
-      from: "ajithk102002@gmail.com", // default sender
+    const info = await transporter.sendMail({
+      from: `"ShopSphere 🛒" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      html: `<p>${text}</p>`,
+      html: `
+        <div style="font-family:sans-serif">
+          <h2>${subject}</h2>
+          <p>${text}</p>
+        </div>
+      `,
     });
 
-    console.log("✅ Email sent:", data);
+    console.log("✅ Email sent:", info.messageId);
   } catch (error) {
     console.error("❌ Email failed:", error);
+    throw error; // IMPORTANT (so controller catch works)
   }
 };
 

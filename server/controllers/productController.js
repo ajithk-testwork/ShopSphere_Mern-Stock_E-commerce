@@ -34,7 +34,7 @@ export const createProduct = async (req, res) => {
       category,
       stock: stock || 0,
       description: description || "",
-      image: `/uploads/productImages/${req.file.filename}`,
+      image: `/uploads/productimages/${req.file.filename}`,
       createdBy: req.user._id,
     });
 
@@ -144,7 +144,7 @@ export const updateProduct = async (req, res) => {
 
     // 🖼 If new image uploaded
     if (req.file) {
-      updateData.image = `/uploads/productImages/${req.file.filename}`;
+      updateData.image = `/uploads/productimages/${req.file.filename}`;
     }
 
     product = await Product.findByIdAndUpdate(

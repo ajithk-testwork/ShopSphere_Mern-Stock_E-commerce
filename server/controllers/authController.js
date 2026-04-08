@@ -247,28 +247,31 @@ export const adminOnly = (req, res, next) => {
 };
 
 export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.forgotPasswordOtp = otp;
+    user.forgotPasswordOtpExpire = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    await sendEmail(
+      email,
+      "ShopSphere Password Reset OTP",
+      `Your OTP is <b>${otp}</b>. It expires in 10 minutes.`
+    );
+
+    res.json({ message: "OTP sent to email" });
+  } catch (error) {
+    console.error("OTP Error:", error);
+    res.status(500).json({ message: "Failed to send OTP" });
   }
-
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  user.forgotPasswordOtp = otp;
-  user.forgotPasswordOtpExpire = Date.now() + 10 * 60 * 1000;
-  await user.save();
-
-  sendEmail(
-  email,
-  "ShopSphere Password Reset OTP",
-  `Your OTP is ${otp}. It expires in 10 minutes.`
-).catch((err) => {
-  console.error("Email Error:", err);
-});
-
-res.json({ message: "OTP sent to email" });
 };
 
 export const verifyOtp = async (req, res) => {
