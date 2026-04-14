@@ -9,9 +9,9 @@ export default function BrandBanner() {
     offset: ["start end", "end start"],
   });
 
-  // Background text moves left
+  
   const xMove = useTransform(scrollYProgress, [0, 1], [0, -300]);
-  // Background image moves slightly slower for a deep parallax feel
+  
   const yImageMove = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
   return (
@@ -22,19 +22,19 @@ export default function BrandBanner() {
       {/* 1. Background Image Layer */}
       <motion.div 
         style={{ y: yImageMove }}
-        className="absolute inset-0 z-0 opacity-40" // Adjust opacity based on your image brightness
+        className="absolute inset-0 z-0 opacity-40"
       >
         <img 
-          src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop" // Replace with your website image URL
+          src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop" 
           alt="Tech Background"
-          className="w-full h-[120%] object-cover grayscale" // Grayscale keeps it premium and non-distracting
+          className="w-full h-[120%] object-cover grayscale" 
         />
-        {/* Gradient Overlay to blend image into the black background */}
+        
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black" />
       </motion.div>
 
-      {/* 2. Parallax Background Text (Now layered over the image) */}
+      
       <div className="absolute inset-0 flex items-center whitespace-nowrap pointer-events-none select-none z-10">
         <motion.h2 
           style={{ x: xMove }}
@@ -47,7 +47,7 @@ export default function BrandBanner() {
       <div className="max-w-7xl mx-auto px-6 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
-          {/* 3. Brand Identity Text */}
+          
           <div className="space-y-8">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -76,7 +76,7 @@ export default function BrandBanner() {
             </motion.p>
           </div>
 
-          {/* 4. Bento Stats with Glassmorphism */}
+         
           <div className="grid grid-cols-2 gap-4 md:gap-6">
             <motion.div 
               whileHover={{ scale: 1.02 }}
@@ -102,7 +102,7 @@ export default function BrandBanner() {
         </div>
       </div>
 
-      {/* 5. Animated Bottom Accent */}
+     
       <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-600/50 to-transparent" />
     </section>
   );

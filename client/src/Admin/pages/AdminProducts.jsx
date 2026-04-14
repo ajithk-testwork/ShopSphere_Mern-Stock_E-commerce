@@ -21,6 +21,16 @@ export default function AdminProducts() {
 
   useEffect(() => { fetchInitialData(); }, []);
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
+  const getImageUrl = (img) => {
+    if (!img) return "/no-image.png";
+
+    return img.startsWith("http")
+      ? img
+      : `${BASE_URL}${img}`;
+  };
+
   const fetchInitialData = async () => {
     try {
       setLoading(true);
@@ -72,7 +82,7 @@ export default function AdminProducts() {
     formData.append("stock", Number(editProduct.stock));
     formData.append("description", editProduct.description);
 
-    // Only append image if a new one was selected
+    
     if (newImage) {
       formData.append("image", newImage);
     }
@@ -89,7 +99,7 @@ export default function AdminProducts() {
         }
       );
 
-      // Update local state with fresh data from database
+      
       setProducts(products.map(p =>
         p._id === editProduct._id ? res.data.product : p
       ));
@@ -107,20 +117,20 @@ export default function AdminProducts() {
   };
 
   const filteredProducts = products.filter((p) => {
-  const searchLower = searchTerm.toLowerCase();
+    const searchLower = searchTerm.toLowerCase();
 
-  const name = p?.name?.toLowerCase() || "";
-  const desc = p?.description?.toLowerCase() || "";
+    const name = p?.name?.toLowerCase() || "";
+    const desc = p?.description?.toLowerCase() || "";
 
-  const matchesSearch =
-    name.includes(searchLower) || desc.includes(searchLower);
+    const matchesSearch =
+      name.includes(searchLower) || desc.includes(searchLower);
 
-  const matchesCategory =
-    selectedCategory === "All" ||
-    p?.category?.name === selectedCategory;
+    const matchesCategory =
+      selectedCategory === "All" ||
+      p?.category?.name === selectedCategory;
 
-  return matchesSearch && matchesCategory;
-});
+    return matchesSearch && matchesCategory;
+  });
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#fcfcfc]">
@@ -181,7 +191,12 @@ export default function AdminProducts() {
               <motion.tr layout key={p._id} className="group hover:bg-gray-50/30 transition-colors">
                 <td className="px-8 py-5">
                   <div className="flex items-center gap-4">
-                    <img src={`https://shopsphere-mern-stock-e-commerce.onrender.com${p.image}`} className="w-14 h-14 rounded-2xl object-cover shadow-sm border border-gray-100" />
+                    <img
+                      src={getImageUrl(p.image)}
+                      alt="product"
+                      onError={(e) => (e.target.src = "/no-image.png")}
+                      className="w-14 h-14 rounded-2xl object-cover shadow-sm border border-gray-100"
+                    />
                     <div>
                       <p className="font-bold text-gray-900 leading-tight">{p.name}</p>
                       <p className="text-blue-600 font-black text-sm mt-1">₹{p.price.toLocaleString()}</p>
@@ -218,7 +233,11 @@ export default function AdminProducts() {
 
                 <div className="md:w-5/12 bg-gray-50 p-8 flex flex-col items-center justify-center border-r border-gray-100">
                   <div className="relative group w-full aspect-square rounded-[2rem] overflow-hidden shadow-inner border border-gray-200">
-                    <img src={imgPreview || `https://shopsphere-mern-stock-e-commerce.onrender.com${editProduct.image}`} className="w-full h-full object-cover" />
+                    <img
+                      src={imgPreview || getImageUrl(editProduct.image)}
+                      onError={(e) => (e.target.src = "/no-image.png")}
+                      className="w-full h-full object-cover"
+                    />
                     <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white">
                       <Camera size={32} />
                       <span className="text-[10px] font-black uppercase mt-2">Change Image</span>

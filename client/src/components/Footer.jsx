@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Facebook, Instagram, Twitter, Youtube, ArrowUpRight } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, ArrowUpRight, Github } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -23,15 +23,6 @@ const Footer = () => {
         { name: "Contact", path: "/contact" },
         { name: "Terms of Service", path: "/terms" },
         { name: "Privacy Policy", path: "/privacy" },
-      ],
-    },
-    {
-      title: "Support",
-      links: [
-        { name: "Shipping Policy", path: "/shipping" },
-        { name: "Returns & Exchanges", path: "/returns" },
-        { name: "FAQs", path: "/faqs" },
-        { name: "Secure Payment", path: "/payments" },
       ],
     },
   ];
@@ -112,21 +103,41 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-xs font-bold text-gray-400">
-            © {currentYear} ShopSphere Inc. All rights reserved.
-          </p>
+        <div className="pt-12 border-t border-gray-100 flex flex-col lg:flex-row justify-between items-center gap-6">
+          
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <p className="text-xs font-bold text-gray-400">
+              © {currentYear} ShopSphere Inc. All rights reserved.
+            </p>
+            
+            {/* Developer Credit */}
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
+              <span>Developed by</span>
+              <a 
+                href="https://github.com/ajithk-testwork" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-900 hover:text-black flex items-center gap-1 transition-colors group"
+              >
+                <Github className="w-3 h-3" />
+                <span>Ajith K</span>
+                <ArrowUpRight className="w-3 h-3 opacity-0 -ml-1 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </a>
+            </div>
+          </div>
+
           <div className="flex items-center gap-8">
             <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">
               Verified Secure Checkout
             </span>
-            <div className="flex items-center gap-3 opacity-30 grayscale">
+            <div className="flex items-center gap-3 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
               {/* Payment Icons Placeholder */}
-              <div className="w-8 h-5 bg-gray-400 rounded-sm" />
-              <div className="w-8 h-5 bg-gray-400 rounded-sm" />
-              <div className="w-8 h-5 bg-gray-400 rounded-sm" />
+              <div className="w-8 h-5 bg-gray-200 rounded-sm" />
+              <div className="w-8 h-5 bg-gray-200 rounded-sm" />
+              <div className="w-8 h-5 bg-gray-200 rounded-sm" />
             </div>
           </div>
+
         </div>
       </div>
     </footer>

@@ -27,11 +27,11 @@ export default function Dashboard() {
     }
   };
 
-  fetchStats(); // first load
+  fetchStats();
 
-  const interval = setInterval(fetchStats, 3000); // 🔁 every 3 sec
+  const interval = setInterval(fetchStats, 3000); 
 
-  return () => clearInterval(interval); // cleanup
+  return () => clearInterval(interval); 
 }, []);
 
   const stats = [

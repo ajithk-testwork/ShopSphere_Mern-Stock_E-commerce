@@ -1,4 +1,4 @@
-// components/Navbar.jsx
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,6 +6,7 @@ import AuthModal from "./AuthModal.jsx";
 import { api } from "../utils/api.js";
 import { ShoppingCart, Menu, X, LogOut, User, ChevronRight } from "lucide-react";
 import { useCart } from "../context/CartContext.jsx";
+import logo from "../assets/logo.png";
 
 const Navbar = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -41,7 +42,7 @@ const Navbar = () => {
     };
   }, []);
 
-  // Close mobile menu on route change
+ 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
@@ -54,24 +55,24 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      // 1. Call API to invalidate session
+      
       await api.post("/auth/logout");
     } catch (error) {
       console.warn("Logout API failed, clearing local session anyway");
     } finally {
-      // 2. Clear ALL local storage items found in your api.js
+     
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       
-      // 3. Reset local state
+     
       setUser(null);
       clearCart();
       
-      // 4. UI Fix: Close mobile menu immediately
+      
       setIsMobileMenuOpen(false);
       
-      // 5. Redirect
+     
       navigate("/");
     }
   };
@@ -84,19 +85,27 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="text-2xl font-black tracking-tighter text-gray-900 flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rotate-45" />
-            </div>
-            <span className="text-2xl sm:text-xl font-black">ShopSphere</span>
+            
+            <span className="text-2xl sm:text-3xl font-black">ShopSphere</span>
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <Link key={link.name} to={link.path} className={`text-sm font-semibold transition-colors ${
-                location.pathname === link.path ? "text-black" : "text-gray-500 hover:text-black"
-              }`}>
+              <Link 
+                key={link.name} 
+                to={link.path} 
+                className={`relative group py-1 text-sm font-semibold transition-colors ${
+                  location.pathname === link.path ? "text-black" : "text-gray-500 hover:text-black"
+                }`}
+              >
                 {link.name}
+                {/* Animated Bottom Border */}
+                <span 
+                  className={`absolute left-0 bottom-0 h-[2px] bg-black transition-all duration-300 ease-in-out ${
+                    location.pathname === link.path ? "w-full" : "w-0 group-hover:w-full"
+                  }`} 
+                />
               </Link>
             ))}
           </div>

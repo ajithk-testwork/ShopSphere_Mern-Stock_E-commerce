@@ -15,11 +15,11 @@ const CheckoutForm = ({ orderId }) => {
     setLoading(true);
 
     try {
-      // 1. Get Client Secret from your backend
+      
       const { data } = await api.post("/payments/create", { orderId });
       const clientSecret = data.clientSecret;
 
-      // 2. Confirm Payment with Stripe
+      
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),

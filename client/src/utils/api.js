@@ -71,7 +71,7 @@ api.interceptors.response.use(
         }
 
         const res = await axios.post(
-          "http://localhost:5000/api/auth/refresh",
+          "https://shopsphere-mern-stock-e-commerce.onrender.com/api/refresh",
           { refreshToken }
         );
 
