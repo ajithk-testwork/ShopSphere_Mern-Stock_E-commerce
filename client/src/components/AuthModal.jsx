@@ -55,6 +55,7 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
 
           // Store new auth
           localStorage.setItem("accessToken", res.data.accessToken);
+          localStorage.setItem("refreshToken", res.data.refreshToken);
           localStorage.setItem("user", JSON.stringify(res.data.user));
 
 

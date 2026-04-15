@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { useAuth } from "../Admin/context/AuthContext"; // Added Auth context
+import { useAuth } from "../Admin/context/AuthContext";
 import { api } from "../utils/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ChevronLeft, AlertCircle, CheckCircle } from "lucide-react";
@@ -10,12 +10,12 @@ export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { fetchCartCount } = useCart();
-  const { user } = useAuth(); // Get user state
+  const user = JSON.parse(localStorage.getItem("user")); 
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [message, setMessage] = useState(null); // Animated message state
+  const [message, setMessage] = useState(null); 
 
   const showMsg = (text, type = "error") => {
     setMessage({ text, type });
@@ -43,26 +43,27 @@ const imageUrl = product?.image
   }, [id]);
 
   const handleAddToCart = async () => {
-    // 1. Check if user is logged in
-    if (!user) {
-      showMsg("Please login to add items to cart", "error");
-      return;
-    }
+  const user = JSON.parse(localStorage.getItem("user")); 
 
-    try {
-      setAdding(true);
-      await api.post("/carts/add", {
-        productId: id,
-        quantity: 1,
-      });
-      fetchCartCount();
-      showMsg("Added to Bag!", "success");
-    } catch (e) {
-      showMsg("Failed to add item", "error");
-    } finally {
-      setAdding(false);
-    }
-  };
+  if (!user) {
+    showMsg("Please login to add items to cart", "error");
+    return;
+  }
+
+  try {
+    setAdding(true);
+    await api.post("/carts/add", {
+      productId: id,
+      quantity: 1,
+    });
+    fetchCartCount();
+    showMsg("Added to Bag!", "success");
+  } catch (e) {
+    showMsg("Failed to add item", "error");
+  } finally {
+    setAdding(false);
+  }
+};;
 
   if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
 

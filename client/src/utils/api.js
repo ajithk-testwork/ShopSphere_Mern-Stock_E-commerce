@@ -6,11 +6,7 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-/**
- * Helper to get valid items from localStorage.
- * Prevents issues where "undefined" or "null" (strings) are stored,
- * as seen in your local storage debugging screenshot.
- */
+
 const getSafeItem = (key) => {
   const value = localStorage.getItem(key);
   if (!value || value === "undefined" || value === "null") return null;
@@ -20,6 +16,7 @@ const getSafeItem = (key) => {
 // --- Request Interceptor ---
 api.interceptors.request.use((config) => {
   const token = getSafeItem("accessToken");
+  console.log("TOKEN 👉", token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -64,15 +61,12 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = getSafeItem("refreshToken");
-
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
+       
 
         const res = await axios.post(
           "https://shopsphere-mern-stock-e-commerce.onrender.com/api/refresh",
-          { refreshToken }
+          {  },
+          { withCredentials: true }
         );
 
         const { accessToken, refreshToken: newRefreshToken } = res.data;

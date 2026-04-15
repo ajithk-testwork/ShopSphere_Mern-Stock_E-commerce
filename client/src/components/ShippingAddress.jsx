@@ -44,19 +44,19 @@ function ShippingAddress() {
       <div className="max-w-2xl mx-auto">
         {/* Progress Header */}
         <div className="flex items-center justify-center mb-10 space-x-4">
-          <div className="flex items-center text-blue-600">
-            <span className="w-8 h-8 rounded-full border-2 border-blue-600 flex items-center justify-center font-bold text-sm">1</span>
+          <div className="flex items-center text-black">
+            <span className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-sm">1</span>
             <span className="ml-2 font-semibold">Shipping</span>
           </div>
           <div className="w-12 h-px bg-gray-300"></div>
-          <div className="flex items-center text-gray-400">
-            <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-sm">2</span>
+          <div className="flex items-center text-black">
+            <span className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-sm">2</span>
             <span className="ml-2 font-semibold">Payment</span>
           </div>
         </div>
 
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
-          <div className="bg-blue-600 p-6">
+          <div className="bg-black p-6">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
               <MapPin size={24} /> Delivery Information
             </h2>
@@ -176,7 +176,7 @@ function ShippingAddress() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200"
+              className="w-full flex cursor-pointer items-center justify-center gap-2 bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
