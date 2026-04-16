@@ -41,83 +41,109 @@ const PaymentSuccess = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg font-semibold">Verifying payment...</p>
+      <div className="h-screen w-full flex items-center justify-center bg-gray-50">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-500 font-medium">Verifying your payment...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-lg w-full bg-white rounded-[2rem] shadow-xl p-8 text-center">
-
-        {/* Success Icon */}
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="text-green-600 w-12 h-12" />
+    // h-screen and overflow-hidden prevent the entire page from scrolling
+    <div className="h-screen w-full bg-gradient-to-br from-green-50 via-white to-gray-100 flex items-center justify-center p-4 overflow-hidden">
+      
+      {/* Max height constraints ensure the card never exceeds the screen */}
+      <div className="max-w-md w-full max-h-full flex flex-col bg-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden">
+        
+        {/* HEADER: Static, non-scrolling */}
+        <div className="p-6 pb-4 text-center flex-shrink-0 relative">
+          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+            <CheckCircle className="text-green-500 w-10 h-10" />
+          </div>
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight mb-1">
+            Payment Successful 🎉
+          </h1>
+          <p className="text-sm text-gray-500">
+            Your order is confirmed and being processed.
+          </p>
         </div>
 
-        <h1 className="text-3xl font-black text-gray-900 mb-2">
-          Payment Successful 🎉
-        </h1>
-
-        <p className="text-gray-600 mb-6">
-          Your order has been confirmed and is being processed.
-        </p>
-
-        {/* 🧾 ORDER DETAILS */}
-        {order && (
-          <div className="text-left bg-gray-50 p-4 rounded-xl mb-6 space-y-3">
-
-            <p className="font-semibold">
-              Order ID: <span className="text-gray-600">{order._id}</span>
-            </p>
-
-            <p className="font-semibold">
-              Total: ₹{order.totalAmount}
-            </p>
-
-            {/* Products */}
-            <div>
-              <p className="font-semibold mb-2">Items:</p>
-
-              {order.items.map((item) => (
-                <div
-                  key={item._id}
-                  className="flex justify-between text-sm text-gray-700"
-                >
-                  <span>{item.product.name}</span>
-                  <span>x{item.quantity}</span>
+        {/* BODY: Scrollable internally ONLY if content is too long */}
+        <div className="px-6 py-2 flex-1 overflow-y-auto custom-scrollbar">
+          {order && (
+            <div className="bg-gray-50 border border-gray-100 p-5 rounded-2xl space-y-4">
+              
+              {/* Top Row: Order ID & Total Side-by-Side to save vertical space */}
+              <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                <div className="min-w-0 pr-4">
+                  <p className="text-xs text-gray-500 mb-1">Order ID</p>
+                  <p className="text-sm font-mono text-gray-900 truncate">
+                    {order._id}
+                  </p>
                 </div>
-              ))}
-            </div>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xs text-gray-500 mb-1">Total</p>
+                  <p className="text-lg font-bold text-green-600">
+                    ₹{order.totalAmount}
+                  </p>
+                </div>
+              </div>
 
-            {/* Address */}
-            <div>
-              <p className="font-semibold mt-3">Shipping:</p>
-              <p className="text-sm text-gray-600">
-                {order.shippingAddress.fullName},{" "}
-                {order.shippingAddress.city}
-              </p>
-            </div>
-          </div>
-        )}
+              {/* Items List */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  Items Purchased
+                </p>
+                <div className="space-y-3">
+                  {order.items.map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex justify-between items-center text-sm gap-3"
+                    >
+                      {/* truncate forces long names onto a single line with ... */}
+                      <span className="text-gray-700 font-medium truncate flex-1">
+                        {item.product.name}
+                      </span>
+                      <span className="text-gray-500 font-semibold bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-sm flex-shrink-0">
+                        x{item.quantity}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-        {/* Actions */}
-        <div className="space-y-4">
+              {/* Shipping Address */}
+              <div className="pt-4 border-t border-gray-200">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                  Shipping To
+                </p>
+                <p className="text-sm text-gray-700 truncate">
+                  <span className="font-medium text-gray-900">{order.shippingAddress.fullName}</span> • {order.shippingAddress.city}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* FOOTER: Static, non-scrolling actions */}
+        <div className="p-6 pt-4 space-y-3 flex-shrink-0 bg-white border-t border-gray-50">
           <Link
             to="/orders/my-orders"
-            className="w-full flex items-center justify-center gap-2 bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition-all"
+            className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3.5 rounded-xl font-bold hover:bg-black hover:shadow-lg transition-all active:scale-[0.98]"
           >
-            <Package size={20} /> View My Orders
+            <Package size={18} /> View My Orders
           </Link>
 
           <Link
             to="/products"
-            className="w-full flex items-center justify-center gap-2 text-gray-600 font-semibold py-2 hover:text-black transition-all"
+            className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 font-semibold py-2 hover:text-gray-900 transition-colors"
           >
-            Continue Shopping <ArrowRight size={18} />
+            Continue Shopping <ArrowRight size={16} />
           </Link>
         </div>
+
       </div>
     </div>
   );
