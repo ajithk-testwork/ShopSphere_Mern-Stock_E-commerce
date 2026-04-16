@@ -13,7 +13,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-72 h-screen bg-[#0a0a0b] text-white p-6 sticky top-0 flex flex-col">
+    <aside className="w-60 h-screen bg-[#0a0a0b] text-white p-6 sticky top-0 flex flex-col">
       <div className="mb-12">
         <h1 className="text-xl font-black">ShopSphere</h1>
       </div>

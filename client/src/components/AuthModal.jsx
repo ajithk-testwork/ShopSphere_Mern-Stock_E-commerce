@@ -15,17 +15,17 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
- const handleModeChange = (newMode) => {
-  setError("");
-  setFormData({
-    name: "",
-    email: formData.email, 
-    password: "",
-    otp: "",
-    newPassword: "",
-  });
-  setMode(newMode);
-};
+  const handleModeChange = (newMode) => {
+    setError("");
+    setFormData({
+      name: "",
+      email: formData.email,
+      password: "",
+      otp: "",
+      newPassword: "",
+    });
+    setMode(newMode);
+  };
 
 
 
@@ -50,22 +50,18 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
         const res = await api.post(endpoint, payload);
 
         if (mode === "login") {
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("user");
 
-          // Store new auth
+          // ✅ CLEAR OLD DATA
+          localStorage.clear();
+
+          // ✅ STORE NEW AUTH
           localStorage.setItem("accessToken", res.data.accessToken);
-          localStorage.setItem("refreshToken", res.data.refreshToken);
           localStorage.setItem("user", JSON.stringify(res.data.user));
 
+          console.log("✅ LOGIN USER:", res.data.user);
 
-          setSuccess(true);
-
-
-          setTimeout(() => {
-            onClose();
-            window.dispatchEvent(new Event("storage")); // better than reload
-          }, 1200);
+          // ✅ HARD RELOAD (ensures no stale state)
+          window.location.reload();
         } else {
           setSuccess(true);
           setTimeout(() => {

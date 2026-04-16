@@ -7,10 +7,7 @@ import {
   ShoppingCart,
   Activity,
   Loader2,
-  CalendarDays,
-  TrendingUp,
-  MoreHorizontal,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -42,7 +39,7 @@ export default function Dashboard() {
         orders: orderRes.data?.length || 0,
       });
 
-      setOrders(orderRes.data || []);
+      setOrders(orderRes.data);
     } catch (err) {
       console.error("Dashboard error:", err);
     } finally {
@@ -61,236 +58,209 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("accessToken");
 
-      // Optimistic UI update for immediate feedback
-      setOrders((prev) =>
-        prev.map((o) =>
-          o._id === orderId ? { ...o, orderStatus: status } : o
-        )
-      );
-
       await axios.put(
         `https://shopsphere-mern-stock-e-commerce.onrender.com/api/orders/${orderId}`,
         { orderStatus: status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === orderId ? { ...o, orderStatus: status } : o
+        )
+      );
     } catch (err) {
       console.error("Update error:", err);
-      // Revert on failure by refetching
-      fetchData();
     }
   };
 
   const stats = [
-    { title: "Total Products", value: counts.products, icon: Package, color: "text-indigo-600", bg: "bg-indigo-50", ring: "ring-indigo-100" },
-    { title: "Categories", value: counts.categories, icon: Layers, color: "text-fuchsia-600", bg: "bg-fuchsia-50", ring: "ring-fuchsia-100" },
-    { title: "Total Orders", value: counts.orders, icon: ShoppingCart, color: "text-emerald-600", bg: "bg-emerald-50", ring: "ring-emerald-100" },
+    { title: "Total Products", value: counts.products, icon: Package, color: "text-blue-600", bg: "bg-blue-50/80", border: "border-blue-100" },
+    { title: "Categories", value: counts.categories, icon: Layers, color: "text-purple-600", bg: "bg-purple-50/80", border: "border-purple-100" },
+    { title: "Total Orders", value: counts.orders, icon: ShoppingCart, color: "text-emerald-600", bg: "bg-emerald-50/80", border: "border-emerald-100" },
   ];
-
-  // Helper for status styling
-  const getStatusStyles = (status) => {
-    switch (status?.toLowerCase()) {
-      case "processing": return "bg-amber-50 text-amber-700 ring-amber-600/20";
-      case "shipped": return "bg-blue-50 text-blue-700 ring-blue-600/20";
-      case "delivered": return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
-      default: return "bg-slate-50 text-slate-700 ring-slate-600/20";
-    }
-  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-indigo-600" size={48} />
-          <p className="text-slate-500 font-medium animate-pulse">Syncing store data...</p>
-        </div>
+      <div className="w-full flex-1 min-w-0 min-h-[80vh] flex items-center justify-center">
+        <Loader2 className="animate-spin text-blue-600" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-6 md:p-10 font-sans">
-      <div className="max-w-[90rem] mx-auto">
-        
-        {/* HEADER */}
-        <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Activity size={16} className="text-indigo-600" />
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                Live Overview
-              </span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Dashboard Metrics
-            </h2>
-          </div>
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-600 bg-white px-4 py-2 rounded-full border border-slate-200 shadow-sm">
-            <CalendarDays size={16} className="text-slate-400" />
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-          </div>
-        </header>
+    // ✅ Added flex-1 and min-w-0 to completely prevent overlap and flexbox blowout
+    <div className="w-full flex-1 min-w-0 p-4 md:p-6 lg:p-8 space-y-6">
+      
+      {/* HEADER */}
+      <header className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <Activity size={16} className="text-blue-600" />
+          <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600">
+            Real-time Metrics
+          </span>
+        </div>
+        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+          Store Overview
+        </h2>
+      </header>
 
-        {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} delay={index * 0.1} />
-          ))}
+      {/* STATS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {stats.map((stat, index) => (
+          <StatCard key={index} {...stat} delay={index * 0.1} />
+        ))}
+      </div>
+
+      {/* ORDERS TABLE */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg md:text-xl font-bold text-gray-900">Recent Orders</h3>
         </div>
 
-        {/* ORDERS TABLE SECTION */}
-        <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-6 md:p-8 border-b border-slate-100 flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight">Recent Orders</h3>
-              <p className="text-sm text-slate-500 mt-1">Manage and track your latest customer purchases.</p>
-            </div>
-            <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400 hover:text-slate-600">
-              <MoreHorizontal size={20} />
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/50 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  <th className="p-6 font-medium">Customer</th>
-                  <th className="p-6 font-medium">Products</th>
-                  <th className="p-6 font-medium">Amount</th>
-                  <th className="p-6 font-medium">Payment</th>
-                  <th className="p-6 font-medium text-right">Status Action</th>
+        {/* ✅ Table wrapper specifically tuned to allow horizontal scrolling inside its bounds, not the window */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden w-full">
+          <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-200">
+            <table className="w-full text-sm text-left whitespace-nowrap min-w-[750px]">
+              <thead className="bg-gray-50/80 text-gray-500 text-[11px] uppercase font-bold tracking-wider border-b border-gray-200">
+                <tr>
+                  <th className="px-5 py-3.5">Customer & Items</th>
+                  <th className="px-5 py-3.5">Total Amount</th>
+                  <th className="px-5 py-3.5">Payment</th>
+                  <th className="px-5 py-3.5">Status</th>
+                  <th className="px-5 py-3.5 text-right">Action</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100">
-                {orders.length === 0 ? (
+              <tbody className="divide-y divide-gray-100">
+                {orders.map((order) => (
+                  <tr key={order._id} className="hover:bg-gray-50/50 transition-colors align-top">
+                    
+                    {/* CUSTOMER + ITEMS */}
+                    <td className="px-5 py-4 whitespace-normal min-w-[280px] max-w-[350px]">
+                      <div className="mb-3">
+                        <div className="font-semibold text-gray-900 text-sm">{order.userInfo?.name}</div>
+                        <div className="text-[13px] text-gray-500">
+                          {order.userInfo?.email}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {order.items.map((item) => (
+                          <div key={item._id} className="flex gap-3 items-center bg-white border border-gray-100 p-1.5 pr-3 rounded-lg shadow-sm">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-8 h-8 object-cover rounded border border-gray-100"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[12px] font-medium text-gray-800 truncate">{item.name}</p>
+                              <p className="text-[11px] text-gray-500">
+                                ₹{item.price} <span className="mx-0.5">×</span> {item.quantity}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+
+                    {/* TOTAL */}
+                    <td className="px-5 py-4">
+                      <div className="text-sm font-bold text-gray-900">₹{order.totalAmount}</div>
+                      <div className="text-[12px] text-gray-500 mt-0.5">
+                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                      </div>
+                    </td>
+
+                    {/* PAYMENT */}
+                    <td className="px-5 py-4">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wide border ${
+                        order.paymentStatus === 'paid' || order.paymentStatus === 'success' 
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                        : 'bg-gray-50 text-gray-600 border-gray-200'
+                      }`}>
+                        {order.paymentStatus}
+                      </span>
+                    </td>
+
+                    {/* STATUS */}
+                    <td className="px-5 py-4">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium capitalize border ${
+                          order.orderStatus === "processing"
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : order.orderStatus === "shipped"
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                          order.orderStatus === "processing" ? "bg-amber-500" 
+                          : order.orderStatus === "shipped" ? "bg-blue-500" 
+                          : "bg-emerald-500"
+                        }`}></span>
+                        {order.orderStatus}
+                      </span>
+                    </td>
+
+                    {/* UPDATE */}
+                    <td className="px-5 py-4 text-right">
+                      <div className="relative inline-block text-left w-32">
+                        <select
+                          value={order.orderStatus}
+                          onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                          className="block w-full appearance-none bg-white border border-gray-200 text-gray-700 py-1.5 pl-3 pr-8 rounded-lg text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow cursor-pointer hover:bg-gray-50 shadow-sm"
+                        >
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-400">
+                          <ChevronDown size={14} />
+                        </div>
+                      </div>
+                    </td>
+
+                  </tr>
+                ))}
+                {orders.length === 0 && (
                   <tr>
-                    <td colSpan="5" className="p-12 text-center text-slate-400 font-medium">
-                      No recent orders found.
+                    <td colSpan="5" className="px-5 py-12 text-center text-gray-400 font-medium">
+                      No orders found in the database.
                     </td>
                   </tr>
-                ) : (
-                  orders.map((order) => (
-                    <tr key={order._id} className="group hover:bg-slate-50/30 transition-colors">
-                      
-                      {/* CUSTOMER INFO */}
-                      <td className="p-6 align-top">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-100 to-indigo-50 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200/50 shadow-sm">
-                            {order.userInfo?.name?.charAt(0).toUpperCase() || "?"}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-slate-900">{order.userInfo?.name}</div>
-                            <div className="text-xs text-slate-500 mt-0.5">{order.userInfo?.email}</div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* PRODUCTS LIST (Compact) */}
-                      <td className="p-6 align-top">
-                        <div className="flex flex-col gap-3 max-w-[280px]">
-                          {order.items.slice(0, 2).map((item) => (
-                            <div key={item._id} className="flex gap-3 items-center group/item">
-                              <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
-                                <img
-                                  src={item.image}
-                                  alt={item.name}
-                                  className="w-full h-full object-cover transition-transform group-hover/item:scale-110"
-                                />
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-slate-900 truncate">{item.name}</p>
-                                <p className="text-xs text-slate-500 font-medium">
-                                  Qty: {item.quantity}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                          {order.items.length > 2 && (
-                            <div className="text-xs font-semibold text-indigo-600 bg-indigo-50 inline-flex px-2 py-1 rounded-md w-fit">
-                              +{order.items.length - 2} more items
-                            </div>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* TOTAL */}
-                      <td className="p-6 align-top">
-                        <div className="font-bold text-slate-900 tabular-nums">
-                          ₹{order.totalAmount?.toLocaleString('en-IN')}
-                        </div>
-                        <div className="text-xs font-medium text-slate-500 mt-0.5">
-                          {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
-                        </div>
-                      </td>
-
-                      {/* PAYMENT STATUS */}
-                      <td className="p-6 align-top">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20`}>
-                          {order.paymentStatus}
-                        </span>
-                      </td>
-
-                      {/* ORDER STATUS DROPDOWN */}
-                      <td className="p-6 align-top text-right">
-                        <div className="relative inline-block text-left">
-                          <select
-                            value={order.orderStatus}
-                            onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                            className={`appearance-none cursor-pointer pl-4 pr-10 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all outline-none ring-1 ring-inset focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 shadow-sm ${getStatusStyles(order.orderStatus)}`}
-                          >
-                            <option value="processing">Processing</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-current opacity-70">
-                            <ChevronDown size={14} strokeWidth={3} />
-                          </div>
-                        </div>
-                      </td>
-
-                    </tr>
-                  ))
                 )}
               </tbody>
             </table>
           </div>
         </div>
+      </div>
 
+      {/* PLACEHOLDER */}
+      <div className="py-8 px-4 border-2 border-dashed border-gray-200 bg-gray-50/50 rounded-xl flex items-center justify-center text-gray-400 font-medium text-sm tracking-wide w-full">
+        Sales Analytics Chart Area
       </div>
     </div>
   );
 }
 
-// ✅ SEPARATED STAT CARD COMPONENT
-function StatCard({ title, value, icon: Icon, color, bg, ring, delay }) {
+function StatCard({ title, value, icon: Icon, color, bg, border, delay }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.4, ease: "easeOut" }}
-      whileHover={{ y: -4 }}
-      className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-lg transition-all relative overflow-hidden group"
+      transition={{ delay, duration: 0.3, ease: "easeOut" }}
+      whileHover={{ y: -2 }}
+      className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
     >
-      <div className="flex justify-between items-start mb-4">
-        <div className={`p-3.5 ${bg} ${color} rounded-2xl ring-1 ring-inset ${ring}`}>
-          <Icon size={24} strokeWidth={2.5} />
-        </div>
-        <div className="flex items-center gap-1 text-emerald-600 font-semibold text-xs bg-emerald-50 px-2.5 py-1 rounded-full ring-1 ring-inset ring-emerald-600/20">
-          <TrendingUp size={14} />
-          Live
+      <div className="flex justify-between items-start mb-3">
+        <div className={`p-2.5 ${bg} ${color} ${border} border rounded-lg`}>
+          <Icon size={20} strokeWidth={2.5} />
         </div>
       </div>
-
-      <div className="relative z-10">
-        <p className="text-sm font-semibold text-slate-500 mb-1">{title}</p>
-        <h3 className="text-4xl font-extrabold text-slate-900 tracking-tight tabular-nums">
-          {value.toLocaleString()}
-        </h3>
-      </div>
-
-      {/* Decorative background icon */}
-      <div className={`absolute -right-6 -bottom-6 opacity-[0.03] transition-transform group-hover:scale-110 group-hover:-rotate-12 duration-500 ${color}`}>
-        <Icon size={140} />
+      <div>
+        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-0.5">{value}</h3>
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{title}</p>
       </div>
     </motion.div>
   );

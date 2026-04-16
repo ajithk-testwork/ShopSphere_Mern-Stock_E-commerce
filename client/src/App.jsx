@@ -31,6 +31,7 @@ import ShippingAddress from "./components/ShippingAddress";
 import PaymentPage from "./components/PaymentPage";
 import PaymentSuccess from "./components/PaymentSuccess";
 import PaymentCancel from "./components/PaymentCancel";
+import UserOrders from "./components/UserOrders";
 
 function AppContent() {
   const location = useLocation();
@@ -43,6 +44,7 @@ function AppContent() {
     "/payment-success",
     "/payment-cancel",
     "/admin",
+    "/orders",
   ];
 
   const hideLayout = hiddenRoutes.some((route) =>
@@ -71,6 +73,7 @@ function AppContent() {
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-cancel" element={<PaymentCancel />} />
+        <Route path="/orders" element={<UserOrders />} />
 
         {/* Admin */}
         <Route path="/admin/login" element={<AdminLogin />} />

@@ -16,10 +16,13 @@ const getSafeItem = (key) => {
 // --- Request Interceptor ---
 api.interceptors.request.use((config) => {
   const token = getSafeItem("accessToken");
-  console.log("TOKEN 👉", token);
+
+  console.log("🚀 SENDING TOKEN:", token);
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
@@ -73,9 +76,7 @@ api.interceptors.response.use(
 
         // Store new tokens safely
         localStorage.setItem("accessToken", accessToken);
-        if (newRefreshToken) {
-          localStorage.setItem("refreshToken", newRefreshToken);
-        }
+      
 
         api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
         processQueue(null, accessToken);
