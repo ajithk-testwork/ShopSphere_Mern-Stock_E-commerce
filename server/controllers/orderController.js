@@ -59,16 +59,19 @@ console.log("EMAIL:", req.user?.email);
 
   // GET USER ORDERS
 
-export const getMyOrders = async (req, res) => {
-  console.log("FETCHING ORDERS FOR USER:", req.user._id);
+import mongoose from "mongoose";
 
-  const orders = await Order.find({ user: req.user._id });
+export const getMyOrders = async (req, res) => {
+  console.log("REQ.USER ID:", req.user._id);
+
+  const orders = await Order.find({
+    user: new mongoose.Types.ObjectId(req.user._id),
+  });
 
   console.log("FOUND ORDERS:", orders);
 
   res.json(orders);
 };
-
 
 // UPDATE ORDER STATUS
 export const updateOrderStatus = async (req, res) => {
