@@ -86,7 +86,11 @@ export default function CategoryCard() {
               className="group relative aspect-[10/14] block overflow-hidden rounded-[2.5rem] bg-gray-900 shadow-2xl shadow-black/20"
             >
               <img
-                src={`https://shopsphere-mern-stock-e-commerce.onrender.com${category.image}`}
+                src={
+                  category.image.startsWith("http")
+                    ? category.image
+                    : `https://shopsphere-mern-stock-e-commerce.onrender.com${category.image}`
+                }
                 alt={category.name}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
               />
