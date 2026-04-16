@@ -56,3 +56,50 @@ export const getMyOrders = async (req, res) => {
   const orders = await Order.find({ user: req.user._id });
   res.json(orders);
 };
+
+
+// UPDATE ORDER STATUS
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderStatus } = req.body;
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Optional: restrict flow (recommended 🔥)
+    const validFlow = {
+      processing: ["shipped"],
+      shipped: ["delivered"],
+      delivered: [],
+    };
+
+    if (!validFlow[order.orderStatus].includes(orderStatus)) {
+      return res.status(400).json({
+        message: `Invalid status change from ${order.orderStatus} → ${orderStatus}`,
+      });
+    }
+
+    order.orderStatus = orderStatus;
+    await order.save();
+
+    res.json({ message: "Order status updated", order });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+// GET ALL ORDERS (ADMIN)
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

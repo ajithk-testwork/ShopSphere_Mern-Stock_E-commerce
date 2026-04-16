@@ -34,7 +34,7 @@ import {
   removeCartItem,
   updateCartItem,
 } from "../controllers/cartController.js";
-import { getMyOrders, placeOrder } from "../controllers/orderController.js";
+import { getMyOrders, placeOrder, updateOrderStatus, getAllOrders } from "../controllers/orderController.js";
 import { createCheckoutSession, verifyPayment } from "../controllers/paymentController.js";
 
 const router = express.Router();
@@ -105,6 +105,10 @@ router.delete("/carts/delete", protect, removeCartItem);
 
 router.post("/orders", protect, placeOrder);
 router.get("/orders/my-orders", protect, getMyOrders);
+
+// ADMIN
+router.get("/orders", protect, adminOnly, getAllOrders);
+router.put("/orders/:id", protect, adminOnly, updateOrderStatus);
 
 //Payment
 router.post("/payments/create", protect, createCheckoutSession);
