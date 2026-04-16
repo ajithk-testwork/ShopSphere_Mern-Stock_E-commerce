@@ -48,3 +48,39 @@ export const createCheckoutSession = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
+export const verifyPayment = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    // ✅ find only that user's order
+    const order = await Order.findOne({
+      _id: orderId,
+      user: req.user._id, // 🔥 ensures only logged-in user updates
+    }).populate("items.product");
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // ✅ prevent duplicate updates
+    if (order.paymentStatus === "paid") {
+      return res.json({ message: "Already paid", order });
+    }
+
+    // ✅ update payment
+    order.paymentStatus = "paid";
+
+    await order.save();
+
+    res.json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Verification failed" });
+  }
+};

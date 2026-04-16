@@ -35,7 +35,7 @@ import {
   updateCartItem,
 } from "../controllers/cartController.js";
 import { getMyOrders, placeOrder } from "../controllers/orderController.js";
-import { createCheckoutSession } from "../controllers/paymentController.js";
+import { createCheckoutSession, verifyPayment } from "../controllers/paymentController.js";
 
 const router = express.Router();
 
@@ -108,6 +108,7 @@ router.get("/orders/my-orders", protect, getMyOrders);
 
 //Payment
 router.post("/payments/create", protect, createCheckoutSession);
+router.post("/payments/verify", protect, verifyPayment);
 
 //router.post("/payments/webhook", express.raw({ type: application.json}), stripeWebhook);
 
