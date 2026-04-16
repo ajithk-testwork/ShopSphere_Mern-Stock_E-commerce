@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle, Package, ArrowRight } from "lucide-react";
+import { CheckCircle, Package, ArrowRight, MapPin, Receipt } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { api } from "../utils/api";
+
+// ⚠️ Make sure to import or define your BASE_URL here if it's not in your api config
+// const BASE_URL = "http://localhost:5000"; // Example
 
 const PaymentSuccess = () => {
   const { fetchCartCount } = useCart();
@@ -10,6 +13,9 @@ const PaymentSuccess = () => {
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fallback for BASE_URL if not defined globally
+  const BASE_URL = api.defaults?.baseURL || "http://localhost:5000";
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -44,104 +50,147 @@ const PaymentSuccess = () => {
       <div className="h-screen w-full flex items-center justify-center bg-gray-50">
         <div className="animate-pulse flex flex-col items-center">
           <div className="w-12 h-12 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin mb-4"></div>
-          <p className="text-gray-500 font-medium">Verifying your payment...</p>
+          <p className="text-gray-500 font-medium">Verifying your secure payment...</p>
         </div>
       </div>
     );
   }
 
   return (
-    // h-screen and overflow-hidden prevent the entire page from scrolling
-    <div className="h-screen w-full bg-gradient-to-br from-green-50 via-white to-gray-100 flex items-center justify-center p-4 overflow-hidden">
+    // h-screen ensures the page itself never scrolls
+    <div className="h-screen w-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4 md:p-8 overflow-hidden">
       
-      {/* Max height constraints ensure the card never exceeds the screen */}
-      <div className="max-w-md w-full max-h-full flex flex-col bg-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden">
+      {/* Main Container: Split layout on Desktop, Stacked on Mobile */}
+      <div className="max-w-5xl w-full max-h-full flex flex-col-reverse lg:flex-row bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100">
         
-        {/* HEADER: Static, non-scrolling */}
-        <div className="p-6 pb-4 text-center flex-shrink-0 relative">
-          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-            <CheckCircle className="text-green-500 w-10 h-10" />
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight mb-1">
-            Payment Successful 🎉
-          </h1>
-          <p className="text-sm text-gray-500">
-            Your order is confirmed and being processed.
-          </p>
-        </div>
-
-        {/* BODY: Scrollable internally ONLY if content is too long */}
-        <div className="px-6 py-2 flex-1 overflow-y-auto custom-scrollbar">
-          {order && (
-            <div className="bg-gray-50 border border-gray-100 p-5 rounded-2xl space-y-4">
-              
-              {/* Top Row: Order ID & Total Side-by-Side to save vertical space */}
-              <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                <div className="min-w-0 pr-4">
-                  <p className="text-xs text-gray-500 mb-1">Order ID</p>
-                  <p className="text-sm font-mono text-gray-900 truncate">
-                    {order._id}
-                  </p>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-xs text-gray-500 mb-1">Total</p>
-                  <p className="text-lg font-bold text-green-600">
-                    ₹{order.totalAmount}
-                  </p>
-                </div>
-              </div>
-
-              {/* Items List */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                  Items Purchased
-                </p>
-                <div className="space-y-3">
-                  {order.items.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex justify-between items-center text-sm gap-3"
-                    >
-                      {/* truncate forces long names onto a single line with ... */}
-                      <span className="text-gray-700 font-medium truncate flex-1">
-                        {item.product.name}
-                      </span>
-                      <span className="text-gray-500 font-semibold bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-sm flex-shrink-0">
-                        x{item.quantity}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Shipping Address */}
-              <div className="pt-4 border-t border-gray-200">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
-                  Shipping To
-                </p>
-                <p className="text-sm text-gray-700 truncate">
-                  <span className="font-medium text-gray-900">{order.shippingAddress.fullName}</span> • {order.shippingAddress.city}
-                </p>
-              </div>
+        {/* ========================================== */}
+        {/* LEFT SIDE: Order Details (Scrollable) */}
+        {/* ========================================== */}
+        <div className="w-full lg:w-3/5 bg-gray-50/50 flex flex-col max-h-[50vh] lg:max-h-[85vh]">
+          
+          {/* Details Header */}
+          <div className="p-6 md:p-8 pb-4 border-b border-gray-200 bg-white flex-shrink-0 flex justify-between items-end">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-gray-400" /> Order Summary
+              </h2>
+              <p className="text-sm text-gray-500 mt-1 font-mono">
+                ID: {order?._id}
+              </p>
             </div>
-          )}
+          </div>
+
+          {/* Details Body (Scrollable Items List) */}
+          <div className="p-6 md:p-8 flex-1 overflow-y-auto custom-scrollbar space-y-6">
+            {order && (
+              <>
+                {/* Product List */}
+                <div className="space-y-4">
+                  {order.items.map((item) => {
+                    const product = item.product;
+                    
+                    // ✅ Updated Image Logic
+                    const imageUrl = product?.image
+                      ? product.image.startsWith("http")
+                        ? product.image 
+                        : `${BASE_URL}${product.image}`
+                      : "https://via.placeholder.com/600";
+
+                    return (
+                      <div
+                        key={item._id}
+                        className="flex items-center gap-4 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm"
+                      >
+                        {/* Product Image */}
+                        <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
+                          <img 
+                            src={imageUrl} 
+                            alt={product?.name || "Product"} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm md:text-base font-semibold text-gray-900 line-clamp-2 leading-snug">
+                            {product?.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Shipping Address */}
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                      Shipping Destination
+                    </p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {order.shippingAddress.fullName}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {order.shippingAddress.city}
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Details Footer (Total) */}
+          <div className="p-6 md:p-8 border-t border-gray-200 bg-white flex-shrink-0">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-500 font-medium">Total Paid</span>
+              <span className="text-2xl font-black text-gray-900">
+                ₹{order?.totalAmount?.toLocaleString()}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* FOOTER: Static, non-scrolling actions */}
-        <div className="p-6 pt-4 space-y-3 flex-shrink-0 bg-white border-t border-gray-50">
-          <Link
-            to="/orders/my-orders"
-            className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3.5 rounded-xl font-bold hover:bg-black hover:shadow-lg transition-all active:scale-[0.98]"
-          >
-            <Package size={18} /> View My Orders
-          </Link>
+        {/* ========================================== */}
+        {/* RIGHT SIDE: Success Message (Static) */}
+        {/* ========================================== */}
+        <div className="w-full lg:w-2/5 bg-white p-8 md:p-12 flex flex-col justify-center items-center text-center relative overflow-hidden flex-shrink-0 border-b lg:border-b-0 lg:border-l border-gray-100">
+          
+          {/* Subtle background glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-green-400/10 blur-[80px] rounded-full pointer-events-none"></div>
 
-          <Link
-            to="/products"
-            className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 font-semibold py-2 hover:text-gray-900 transition-colors"
-          >
-            Continue Shopping <ArrowRight size={16} />
-          </Link>
+          {/* Icon */}
+          <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(34,197,94,0.15)] relative z-10">
+            <CheckCircle className="text-green-500 w-12 h-12" strokeWidth={2.5} />
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight mb-3 relative z-10">
+            Payment<br />Successful! 🎉
+          </h1>
+          
+          <p className="text-gray-500 mb-8 relative z-10 leading-relaxed max-w-xs">
+            Thank you for your purchase. We are currently processing your order and will email you the updates.
+          </p>
+
+          {/* Action Buttons */}
+          <div className="w-full space-y-3 relative z-10">
+            <Link
+              to="/orders/my-orders"
+              className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-[0.98]"
+            >
+              <Package size={20} /> Track My Order
+            </Link>
+
+            <Link
+              to="/products"
+              className="w-full flex items-center justify-center gap-2 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all"
+            >
+              Continue Shopping <ArrowRight size={18} />
+            </Link>
+          </div>
         </div>
 
       </div>
