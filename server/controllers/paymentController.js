@@ -38,8 +38,8 @@ export const createCheckoutSession = async (req, res) => {
           quantity: item.quantity,
         };
       }),
-      success_url: `${process.env.FRONTEND_URL}/payment-success?orderId=${orderId}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
+      success_url: `https://shop-sphere-mern-stock-e-commerce-v.vercel.app/payment-success?orderId=${orderId}`,
+      cancel_url: `https://shop-sphere-mern-stock-e-commerce-v.vercel.app/payment-cancel`,
     });
 
     res.json({ url: session.url });
