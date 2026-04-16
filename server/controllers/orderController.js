@@ -60,7 +60,12 @@ console.log("EMAIL:", req.user?.email);
   // GET USER ORDERS
 
 export const getMyOrders = async (req, res) => {
+  console.log("FETCHING ORDERS FOR USER:", req.user._id);
+
   const orders = await Order.find({ user: req.user._id });
+
+  console.log("FOUND ORDERS:", orders);
+
   res.json(orders);
 };
 
