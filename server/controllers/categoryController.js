@@ -1,6 +1,5 @@
 import Category from "../models/Category.js";
-import fs from "fs";
-import path from "path";
+import cloudinary from "../config/cloudinary.js";
 
 // CREATE CATEGORY (ADMIN)
 export const createCategory = async (req, res) => {
@@ -9,9 +8,15 @@ export const createCategory = async (req, res) => {
       return res.status(400).json({ message: "Category image required" });
     }
 
+    // Upload image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "categories",
+    });
+
     const category = await Category.create({
       name: req.body.name,
-      image: `/uploads/categoryImages/${req.file.filename}`,
+      image: result.secure_url,        // ✅ Cloudinary URL
+      imagePublicId: result.public_id, // ✅ Needed for delete
       createdBy: req.user._id,
     });
 
@@ -21,28 +26,34 @@ export const createCategory = async (req, res) => {
   }
 };
 
-// GET ALL CATEGORIES (PUBLIC)
+
+
+
 export const getCategories = async (req, res) => {
-  const categories = await Category.find().sort({ createdAt: -1 });
-  res.json(categories);
+  try {
+    const categories = await Category.find().sort({ createdAt: -1 });
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 
+
+// DELETE CATEGORY
 export const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
     const category = await Category.findById(id);
+
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    // delete image from uploads folder
-    if (category.image) {
-      const imagePath = path.join(process.cwd(), category.image);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
+    // Delete image from Cloudinary
+    if (category.imagePublicId) {
+      await cloudinary.uploader.destroy(category.imagePublicId);
     }
 
     await category.deleteOne();

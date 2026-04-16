@@ -12,9 +12,13 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    imagePublicId: {
+      type: String, 
+      required: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
     },
   },
   { timestamps: true }

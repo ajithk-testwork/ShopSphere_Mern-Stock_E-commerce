@@ -136,17 +136,11 @@ export const logoutUser = async (req, res) => {
 export const protect = async (req, res, next) => {
   let token;
 
-  // ✅ Check header first
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
-  }
-
-  // ✅ OR check cookie
-  if (!token && req.cookies.refreshToken) {
-    token = req.cookies.refreshToken;
   }
 
   if (!token) {
