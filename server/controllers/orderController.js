@@ -59,7 +59,6 @@ console.log("EMAIL:", req.user?.email);
 
   // GET USER ORDERS
 
-import mongoose from "mongoose";
 
 export const getMyOrders = async (req, res) => {
   console.log("REQ.USER ID:", req.user._id);
