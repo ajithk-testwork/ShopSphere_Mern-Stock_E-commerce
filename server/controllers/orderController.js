@@ -29,6 +29,8 @@ export const placeOrder = async (req, res) => {
       email: req.user.email,
     },
 
+    
+
     // ✅ PRODUCT SNAPSHOT
     items: cart.items.map((item) => ({
       product: item.product._id,
@@ -38,9 +40,14 @@ export const placeOrder = async (req, res) => {
       quantity: item.quantity,
     })),
 
+    
+
     shippingAddress,
     totalAmount,
   });
+
+  console.log("USER FROM TOKEN:", req.user);
+console.log("EMAIL:", req.user?.email);
 
   // ✅ clear cart
   cart.items = [];

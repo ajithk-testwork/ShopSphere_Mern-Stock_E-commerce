@@ -149,9 +149,7 @@ export const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.userId).select("-password");
-
+    const user = await User.findById(decoded.userId);
     req.user = user;
     next();
   } catch (error) {
@@ -298,7 +296,7 @@ export const resetPassword = async (req, res) => {
   user.forgotPasswordOtp = undefined;
   user.forgotPasswordOtpExpire = undefined;
   user.refreshToken = undefined;
-  
+
 
   await user.save();
 
