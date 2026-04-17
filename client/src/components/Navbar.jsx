@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthModal from "./AuthModal.jsx";
 import { api } from "../utils/api.js";
-import { ShoppingCart, Menu, X, LogOut, User, ChevronRight } from "lucide-react";
+import { ShoppingCart, Menu, X, LogOut, ChevronRight, Package } from "lucide-react";
 import { useCart } from "../context/CartContext.jsx";
 import logo from "../assets/logo.png";
 
@@ -42,7 +41,6 @@ const Navbar = () => {
     };
   }, []);
 
- 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
@@ -55,24 +53,17 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      
       await api.post("/auth/logout");
     } catch (error) {
       console.warn("Logout API failed, clearing local session anyway");
     } finally {
-     
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       
-     
       setUser(null);
       clearCart();
-      
-      
       setIsMobileMenuOpen(false);
-      
-     
       navigate("/");
     }
   };
@@ -85,7 +76,6 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="text-2xl font-black tracking-tighter text-gray-900 flex items-center gap-2">
-            
             <span className="text-2xl sm:text-3xl font-black">ShopSphere</span>
           </Link>
 
@@ -135,7 +125,13 @@ const Navbar = () => {
                           <p className="text-[10px] text-gray-400 font-bold uppercase">Account</p>
                           <p className="text-xs font-bold truncate">{user.email}</p>
                        </div>
-                       <button onClick={handleLogout} className="w-full text-left text-sm text-red-500 font-bold p-3 hover:bg-red-50 rounded-xl mt-1 flex items-center gap-2">
+                       
+                       {/* ✅ Added Orders Link */}
+                       <Link to="/orders" className="w-full text-left text-sm text-gray-700 font-bold p-3 hover:bg-gray-50 rounded-xl mt-1 flex items-center gap-2 transition-colors">
+                          <Package size={16} /> My Orders
+                       </Link>
+                       
+                       <button onClick={handleLogout} className="w-full text-left text-sm text-red-500 font-bold p-3 hover:bg-red-50 rounded-xl flex items-center gap-2 transition-colors">
                           <LogOut size={16} /> Logout
                        </button>
                     </div>
@@ -163,7 +159,7 @@ const Navbar = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-2xl md:hidden z-50"
+              className="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-2xl md:hidden z-50 overflow-hidden"
             >
               <div className="p-6 space-y-6">
                 {/* Links */}
@@ -190,9 +186,17 @@ const Navbar = () => {
                         <p className="text-sm text-gray-500 truncate">{user.email}</p>
                       </div>
                     </div>
-                    <button onClick={handleLogout} className="w-full py-4 bg-red-50 text-red-600 rounded-xl font-bold flex items-center justify-center gap-2 border border-red-100">
-                      <LogOut size={20} /> Logout
-                    </button>
+                    
+                    <div className="flex flex-col gap-2">
+                      {/* ✅ Added Orders Link for Mobile */}
+                      <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="w-full py-3.5 bg-white text-gray-900 rounded-xl font-bold flex items-center justify-center gap-2 border border-gray-200 shadow-sm">
+                        <Package size={20} /> My Orders
+                      </Link>
+
+                      <button onClick={handleLogout} className="w-full py-3.5 bg-red-50 text-red-600 rounded-xl font-bold flex items-center justify-center gap-2 border border-red-100">
+                        <LogOut size={20} /> Logout
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
