@@ -18,30 +18,30 @@ export const createCheckoutSession = async (req, res) => {
     console.log("Order items:", order.items);
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "payment",
-      line_items: order.items.map((item) => {
-        console.log("Item:", item);
+  payment_method_types: ["card"],
+  mode: "payment",
 
-        const price = Number(item.product.price);
+  line_items: order.items.map((item) => ({
+    price_data: {
+      currency: "inr",
+      product_data: {
+        name: item.product.name,
+      },
+      unit_amount: Math.round(Number(item.product.price) * 100),
+    },
+    quantity: item.quantity,
+  })),
 
-        console.log("Price:", price);
+  // ✅ ADD THIS
+  metadata: {
+    orderId: orderId,
+  },
 
-        return {
-          price_data: {
-            currency: "inr",
-            product_data: {
-              name: item.product.name,
-            },
-            unit_amount: Math.round(price * 100),
-          },
-          quantity: item.quantity,
-        };
-      }),
-      success_url: `https://shop-sphere-mern-stock-e-commerce-v.vercel.app/payment-success?orderId=${orderId}`,
-      cancel_url: `https://shop-sphere-mern-stock-e-commerce-v.vercel.app/payment-cancel`,
-    });
+  // ✅ IMPORTANT CHANGE
+  success_url: `https://shop-sphere-mern-stock-e-commerce-v.vercel.app/payment-success?session_id={CHECKOUT_SESSION_ID}`,
 
+  cancel_url: `https://shop-sphere-mern-stock-e-commerce-v.vercel.app/payment-cancel`,
+});
     res.json({ url: session.url });
   } catch (error) {
     console.error("Stripe Error:", error);
@@ -53,32 +53,41 @@ export const createCheckoutSession = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { session_id } = req.body;
 
-    // ✅ find only that user's order
-    const order = await Order.findOne({
-      _id: orderId,
-      user: req.user._id, // 🔥 ensures only logged-in user updates
-    }).populate("items.product");
+    // 🔥 verify with Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (!session) {
+      return res.status(400).json({ message: "Invalid session" });
+    }
+
+    if (session.payment_status !== "paid") {
+      return res.status(400).json({ message: "Payment not completed" });
+    }
+
+    const orderId = session.metadata.orderId;
+
+    // ✅ DO NOT depend on req.user (fixes 401 issue)
+    const order = await Order.findById(orderId).populate("items.product");
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // ✅ prevent duplicate updates
+    // ✅ prevent duplicate
     if (order.paymentStatus === "paid") {
       return res.json({ message: "Already paid", order });
     }
 
-    // ✅ update payment
     order.paymentStatus = "paid";
+    order.isPaid = true;
+    order.paidAt = new Date();
 
     await order.save();
 
-    res.json({
-      success: true,
-      order,
-    });
+    res.json({ success: true, order });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Verification failed" });
