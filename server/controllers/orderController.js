@@ -65,8 +65,8 @@ export const getMyOrders = async (req, res) => {
   console.log("REQ.USER ID:", req.user._id);
 
   const orders = await Order.find({
-    user: new mongoose.Types.ObjectId(req.user._id),
-  });
+    user: req.user._id, // ✅ FIXED (no ObjectId conversion)
+  }).sort({ createdAt: -1 });
 
   console.log("FOUND ORDERS:", orders);
 
