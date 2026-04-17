@@ -216,33 +216,53 @@ export default function UserOrders() {
                 </button>
               </div>
 
-              {/* Card Body (Items Preview) */}
-              <div className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div className="flex items-center gap-4 overflow-x-auto pb-4 md:pb-0 scrollbar-hide max-w-full">
+              {/* Card Body (Detailed Items Preview) */}
+              <div className="p-6">
+                <div className="flex justify-between items-end mb-4">
+                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">
+                    Items in this order ({order.items.length})
+                  </h3>
+                  
+                  {/* Visual Status Indicator */}
+                  <div className="flex flex-col items-end shrink-0 hidden md:flex">
+                    <div className="flex gap-1.5">
+                      <div className={`h-2 w-10 rounded-full transition-colors ${['processing', 'shipped', 'delivered'].includes(order.orderStatus) ? 'bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)]' : 'bg-gray-100'}`} />
+                      <div className={`h-2 w-10 rounded-full transition-colors ${['shipped', 'delivered'].includes(order.orderStatus) ? 'bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)]' : 'bg-gray-100'}`} />
+                      <div className={`h-2 w-10 rounded-full transition-colors ${order.orderStatus === 'delivered' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gray-100'}`} />
+                    </div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">{order.orderStatus}</p>
+                  </div>
+                </div>
+
+                {/* Enhanced Items Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {order.items.map((item) => (
-                    <div key={item._id} className="flex-shrink-0 relative">
-                      <div className="w-24 h-24 rounded-2xl border border-gray-100 overflow-hidden bg-white shadow-sm group-hover:shadow-md transition-shadow">
+                    <div 
+                      key={item._id} 
+                      className="flex items-center gap-4 p-3 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-white transition-colors"
+                    >
+                      <div className="w-16 h-16 rounded-xl border border-gray-200 overflow-hidden bg-white shrink-0 shadow-sm">
                         <img
                           src={item.image}
                           alt={item.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <span className="absolute -top-2 -right-2 bg-gray-900 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full border-2 border-white shadow-sm">
-                        x{item.quantity}
-                      </span>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-gray-900 truncate" title={item.name}>
+                          {item.name}
+                        </h4>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="text-xs font-bold text-gray-600 bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">
+                            Qty: {item.quantity}
+                          </span>
+                          <span className="text-sm font-black text-gray-900">
+                            ₹{item.price}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ))}
-                </div>
-                
-                {/* Visual Status Indicator on main card */}
-                <div className="flex flex-col items-end shrink-0 hidden md:flex">
-                  <p className="text-sm font-black text-gray-900 uppercase tracking-widest mb-2.5">{order.orderStatus}</p>
-                  <div className="flex gap-1.5">
-                    <div className={`h-2 w-10 rounded-full transition-colors ${['processing', 'shipped', 'delivered'].includes(order.orderStatus) ? 'bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)]' : 'bg-gray-100'}`} />
-                    <div className={`h-2 w-10 rounded-full transition-colors ${['shipped', 'delivered'].includes(order.orderStatus) ? 'bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)]' : 'bg-gray-100'}`} />
-                    <div className={`h-2 w-10 rounded-full transition-colors ${order.orderStatus === 'delivered' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gray-100'}`} />
-                  </div>
                 </div>
               </div>
             </motion.div>
