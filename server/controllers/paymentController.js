@@ -55,7 +55,11 @@ export const verifyPayment = async (req, res) => {
   try {
     const { session_id } = req.body;
 
-    // 🔥 verify with Stripe
+    if (!session_id) {
+      return res.status(400).json({ message: "Session ID required" });
+    }
+
+    // 🔥 Verify with Stripe
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
     if (!session) {
@@ -68,28 +72,37 @@ export const verifyPayment = async (req, res) => {
 
     const orderId = session.metadata.orderId;
 
-    // ✅ DO NOT depend on req.user (fixes 401 issue)
-    const order = await Order.findById(orderId).populate("items.product");
+    if (!orderId) {
+      return res.status(400).json({ message: "Order ID missing in metadata" });
+    }
+
+    // ✅ Get order
+    let order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // ✅ prevent duplicate
-    if (order.paymentStatus === "paid") {
-      return res.json({ message: "Already paid", order });
+    // ✅ Prevent duplicate update
+    if (order.paymentStatus !== "paid") {
+      order.paymentStatus = "paid";
+      order.isPaid = true;
+      order.paidAt = new Date();
+
+      await order.save();
     }
 
-    order.paymentStatus = "paid";
-    order.isPaid = true;
-    order.paidAt = new Date();
+    // 🔥 IMPORTANT: RE-FETCH WITH POPULATE
+    const updatedOrder = await Order.findById(orderId)
+      .populate("items.product");
 
-    await order.save();
-
-    res.json({ success: true, order });
+    res.json({
+      success: true,
+      order: updatedOrder,
+    });
 
   } catch (error) {
-    console.error(error);
+    console.error("VERIFY PAYMENT ERROR:", error);
     res.status(500).json({ message: "Verification failed" });
   }
 };
