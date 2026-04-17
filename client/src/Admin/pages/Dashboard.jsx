@@ -89,6 +89,7 @@ export default function Dashboard() {
   }
 
   return (
+    // ✅ Added flex-1 and min-w-0 to completely prevent overlap and flexbox blowout
     <div className="w-full flex-1 min-w-0 p-4 md:p-6 lg:p-8 space-y-6">
       
       {/* HEADER */}
@@ -117,6 +118,7 @@ export default function Dashboard() {
           <h3 className="text-lg md:text-xl font-bold text-gray-900">Recent Orders</h3>
         </div>
 
+        {/* ✅ Table wrapper specifically tuned to allow horizontal scrolling inside its bounds, not the window */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden w-full">
           <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-200">
             <table className="w-full text-sm text-left whitespace-nowrap min-w-[750px]">
@@ -138,20 +140,8 @@ export default function Dashboard() {
                     <td className="px-5 py-4 whitespace-normal min-w-[280px] max-w-[350px]">
                       <div className="mb-3">
                         <div className="font-semibold text-gray-900 text-sm">{order.userInfo?.name}</div>
-                        
-                        {/* ✅ COMPACT DATE & TIME INLINE WITH EMAIL */}
-                        <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-gray-500 mt-0.5">
-                          <span>{order.userInfo?.email}</span>
-                          <span className="text-gray-300">•</span>
-                          <span className="text-gray-400 font-medium">
-                            {order.createdAt ? (
-                              <>
-                                {new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                                {" "}at{" "}
-                                {new Date(order.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                              </>
-                            ) : "Unknown Date"}
-                          </span>
+                        <div className="text-[13px] text-gray-500">
+                          {order.userInfo?.email}
                         </div>
                       </div>
 

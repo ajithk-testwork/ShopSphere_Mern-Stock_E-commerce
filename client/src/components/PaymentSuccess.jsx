@@ -54,13 +54,15 @@ const PaymentSuccess = () => {
   }
 
   return (
-   
+    // h-screen ensures the page itself never scrolls
     <div className="h-screen w-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4 md:p-8 overflow-hidden">
       
       {/* Main Container */}
       <div className="max-w-5xl w-full max-h-full flex flex-col-reverse lg:flex-row bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100">
         
-       
+        {/* ========================================== */}
+        {/* LEFT SIDE: Order Details */}
+        {/* ========================================== */}
         <div className="w-full lg:w-3/5 bg-gray-50/50 flex flex-col max-h-[55vh] lg:max-h-[85vh]">
           
           {/* Details Header */}
@@ -75,7 +77,7 @@ const PaymentSuccess = () => {
             </div>
           </div>
 
-         
+          {/* Details Body - Tightened padding to prevent scrolling */}
           <div className="p-4 md:p-6 flex-1 overflow-y-auto custom-scrollbar space-y-4">
             {order && (
               <>
@@ -84,7 +86,7 @@ const PaymentSuccess = () => {
                   {order.items.map((item) => {
                     const product = item.product;
                     
-                    
+                    // ✅ Updated Image Logic
                     const imageUrl = product?.image
                       ? product.image.startsWith("http")
                         ? product.image 
@@ -124,7 +126,7 @@ const PaymentSuccess = () => {
                   })}
                 </div>
 
-               
+                {/* 📍 Full Shipping Address Block */}
                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-start gap-3">
                   <div className="bg-gray-50 p-2 rounded-lg flex-shrink-0">
                     <MapPin className="w-5 h-5 text-gray-500" />
@@ -161,7 +163,9 @@ const PaymentSuccess = () => {
           </div>
         </div>
 
-        
+        {/* ========================================== */}
+        {/* RIGHT SIDE: Success Message (Static) */}
+        {/* ========================================== */}
         <div className="w-full lg:w-2/5 bg-white p-8 md:p-10 flex flex-col justify-center items-center text-center relative overflow-hidden flex-shrink-0 border-b lg:border-b-0 lg:border-l border-gray-100">
           
           {/* Subtle background glow */}
@@ -183,7 +187,7 @@ const PaymentSuccess = () => {
           {/* Action Buttons */}
           <div className="w-full space-y-3 relative z-10">
             <Link
-              to="/orders"
+              to="/orders/my-orders"
               className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3.5 rounded-xl font-bold hover:bg-black hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-[0.98]"
             >
               <Package size={18} /> Track My Order
