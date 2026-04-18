@@ -4,7 +4,8 @@ ShopSphere is a production-ready full-stack MERN e-commerce application built wi
 
 This project simulates a real-world e-commerce system and demonstrates strong skills in both frontend and backend development.
 
-🚀 Features
+🚀 Features:
+
 🔐 Authentication & Security
 User registration & login system
 Password hashing using bcrypt
@@ -13,19 +14,25 @@ Secure protected routes with middleware
 Role-based authorization (Admin / User)
 Forgot password with OTP verification via email
 Secure password reset functionality
-🛍️ E-Commerce Core
+
+
+🛍️ E-Commerce Core:
 Product listing & detailed product view
 Admin-only product management (Create / Update / Delete)
 Cloud-based image storage using Cloudinary
 User cart management (add, update, remove items)
 Order creation from cart
 User-specific order history
-💳 Payment Integration
+
+
+💳 Payment Integration:
 Secure payment processing using Stripe
 Backend-generated checkout sessions
 Payment verification & validation
 Order marked as paid only after successful payment confirmation
 Real-time payment status handling
+
+
 🎨 Frontend (In Progress / Planned)
 Built with React.js + Tailwind CSS
 Fully responsive modern UI
@@ -33,7 +40,10 @@ Clean and consistent design system
 Smooth animations using Framer Motion
 Stripe Checkout integration
 Admin dashboard for product & order management
-🧰 Tech Stack
+
+
+🧰 Tech Stack:
+
 Frontend
 React.js
 Tailwind CSS
@@ -49,7 +59,10 @@ bcryptjs
 Nodemailer
 Stripe SDK
 Cloudinary (Image storage)
-🏗️ Project Architecture
+
+
+🏗️ Project Architecture:
+
 RESTful API design
 Modular folder structure
 Middleware-based authentication & authorization
@@ -62,7 +75,10 @@ Scalable backend ready for production
 ✅ Improved authentication flow with refresh tokens
 ✅ Enhanced security & validation across APIs
 ✅ Optimized order and payment handling logic
-📌 Future Enhancements
+
+
+📌 Future Enhancements:
+
 Advanced admin analytics dashboard
 Product search & filtering
 Wishlist functionality
