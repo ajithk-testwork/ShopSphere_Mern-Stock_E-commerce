@@ -53,7 +53,7 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (!window.confirm("Permanent delete?")) return;
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem("adminToken");
       await axios.delete(`https://shopsphere-mern-stock-e-commerce.onrender.com/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -74,7 +74,7 @@ export default function AdminProducts() {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("adminToken");
 
     const formData = new FormData();
     formData.append("name", editProduct.name);

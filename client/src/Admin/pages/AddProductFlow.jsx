@@ -106,7 +106,7 @@ export default function AddProductFlow() {
         formData.append("category", createdCategory._id);
         if (prod.image) formData.append("image", prod.image);
 
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("adminToken");
 
         await api.post("/products/create", formData, {
           headers: {

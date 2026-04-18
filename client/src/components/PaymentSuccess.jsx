@@ -187,7 +187,7 @@ const PaymentSuccess = () => {
           {/* Action Buttons */}
           <div className="w-full space-y-3 relative z-10">
             <Link
-              to="/orders/my-orders"
+              to="/orders"
               className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3.5 rounded-xl font-bold hover:bg-black hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-[0.98]"
             >
               <Package size={18} /> Track My Order

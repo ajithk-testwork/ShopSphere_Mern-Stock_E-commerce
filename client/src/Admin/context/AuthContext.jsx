@@ -21,16 +21,20 @@ const login = async (email, password) => {
   try {
     const res = await api.post("/auth/admin/login", { email, password });
 
-    
-    const { accessToken, admin } = res.data; 
+    console.log("LOGIN RESPONSE:", res.data);
 
-    localStorage.setItem("accessToken", accessToken);
-   
+    const { accessToken, admin } = res.data;
+
+    localStorage.clear();
+
+    localStorage.setItem("adminToken", accessToken);
     localStorage.setItem("admin", JSON.stringify(admin));
 
     setAdmin(admin);
+
     return admin;
   } catch (error) {
+    console.error("LOGIN ERROR:", error.response?.data);
     throw new Error(error.response?.data?.message || "Login failed");
   }
 };

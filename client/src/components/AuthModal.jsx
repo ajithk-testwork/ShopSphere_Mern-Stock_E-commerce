@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react"; // ✅ Imported Eye icons
 import { api } from "../utils/api";
-
 
 const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
   const [formData, setFormData] = useState({
@@ -27,9 +27,6 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
     setMode(newMode);
   };
 
-
-
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -50,17 +47,13 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
         const res = await api.post(endpoint, payload);
 
         if (mode === "login") {
-
-          // ✅ CLEAR OLD DATA
-          localStorage.clear();
-
-          // ✅ STORE NEW AUTH
-          localStorage.setItem("accessToken", res.data.accessToken);
+          // STORE NEW AUTH
+          localStorage.setItem("userToken", res.data.accessToken);
           localStorage.setItem("user", JSON.stringify(res.data.user));
 
           console.log("✅ LOGIN USER:", res.data.user);
 
-          // ✅ HARD RELOAD (ensures no stale state)
+          // HARD RELOAD (ensures no stale state)
           window.location.reload();
         } else {
           setSuccess(true);
@@ -299,18 +292,43 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
   );
 };
 
-const InputField = ({ label, ...props }) => (
-  <div className="group">
-    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 ml-1">
-      {label}
-    </label>
-    <input
-      {...props}
-      required
-      className="w-full px-5 py-3 rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-black outline-none transition-all text-sm font-medium placeholder:text-gray-300"
-    />
-  </div>
-);
+// ✅ UPDATED InputField component with visibility toggle
+const InputField = ({ label, type: originalType, ...props }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = originalType === "password";
+  
+  // Determine actual input type based on state
+  const currentType = isPassword ? (showPassword ? "text" : "password") : originalType;
+
+  return (
+    <div className="group relative">
+      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 ml-1">
+        {label}
+      </label>
+      <div className="relative flex items-center">
+        <input
+          {...props}
+          type={currentType}
+          required
+          // Add extra padding to the right if it's a password field to make room for the icon
+          className={`w-full px-5 py-3 rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-black outline-none transition-all text-sm font-medium placeholder:text-gray-300 ${
+            isPassword ? 'pr-12' : ''
+          }`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 text-gray-400 hover:text-black transition-colors focus:outline-none flex items-center justify-center cursor-pointer"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const SuccessState = ({ mode }) => (
   <motion.div

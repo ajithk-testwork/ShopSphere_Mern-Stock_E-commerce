@@ -6,22 +6,40 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-
+// --- Safe localStorage getter ---
 const getSafeItem = (key) => {
   const value = localStorage.getItem(key);
   if (!value || value === "undefined" || value === "null") return null;
   return value;
 };
 
+// --- Detect active token type ---
+const getActiveTokenType = () => {
+  if (localStorage.getItem("adminToken")) return "admin";
+  if (localStorage.getItem("userToken")) return "user";
+  return null;
+};
+
 // --- Request Interceptor ---
 api.interceptors.request.use((config) => {
-  const token = getSafeItem("accessToken");
+  const adminToken = getSafeItem("adminToken");
+  const userToken = getSafeItem("userToken");
 
-  console.log("🚀 SENDING TOKEN:", token);
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // ✅ Decide which token to send
+  if (config.url.includes("/admin")) {
+    if (adminToken) {
+      config.headers.Authorization = `Bearer ${adminToken}`;
+    }
+  } else {
+    if (userToken) {
+      config.headers.Authorization = `Bearer ${userToken}`;
+    } else if (adminToken) {
+      // fallback if only admin logged in
+      config.headers.Authorization = `Bearer ${adminToken}`;
+    }
   }
+
+  console.log("🚀 TOKEN SENT:", config.headers.Authorization);
 
   return config;
 });
@@ -32,11 +50,8 @@ let failedQueue = [];
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
+    if (error) prom.reject(error);
+    else prom.resolve(token);
   });
   failedQueue = [];
 };
@@ -46,9 +61,9 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Handle 401 Unauthorized errors
+    // Handle 401
     if (error.response?.status === 401 && !originalRequest._retry) {
-      
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -64,35 +79,39 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-       
-
         const res = await axios.post(
           "https://shopsphere-mern-stock-e-commerce.onrender.com/api/refresh",
-          {  },
+          {},
           { withCredentials: true }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } = res.data;
+        const { accessToken } = res.data;
 
-        // Store new tokens safely
-        localStorage.setItem("accessToken", accessToken);
-      
+        // ✅ Update correct token
+        const type = getActiveTokenType();
+
+        if (type === "admin") {
+          localStorage.setItem("adminToken", accessToken);
+        } else if (type === "user") {
+          localStorage.setItem("userToken", accessToken);
+        }
 
         api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+
         processQueue(null, accessToken);
 
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
+
       } catch (err) {
         processQueue(err, null);
 
-        // CLEAR ALL AUTH DATA - This ensures the UI updates to "Logged Out" 
-        // if the session cannot be refreshed.
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        // ❌ clear everything on failure
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("adminToken");
         localStorage.removeItem("user");
         localStorage.removeItem("admin");
 
-        // Force Navbar/UI update
         window.dispatchEvent(new Event("storage"));
 
         return Promise.reject(err);

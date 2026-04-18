@@ -57,9 +57,10 @@ const Navbar = () => {
     } catch (error) {
       console.warn("Logout API failed, clearing local session anyway");
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userToken");
       localStorage.removeItem("user");
+      localStorage.removeItem("lastOrder");
+      localStorage.removeItem("shippingAddress");
       
       setUser(null);
       clearCart();

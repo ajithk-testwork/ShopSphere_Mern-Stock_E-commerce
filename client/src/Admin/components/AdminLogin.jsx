@@ -11,10 +11,10 @@ import {
   Eye,
   EyeOff
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { api } from "../../utils/api.js";
 
 export default function AdminLogin() {
-  const { login } = useAuth();
+  
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -24,22 +24,35 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setStatus("loading");
-    setErrorMsg("");
+  e.preventDefault();
+  setStatus("loading");
+  setErrorMsg("");
 
-    try {
-      await login(email, password);
-      setStatus("success");
-      setTimeout(() => {
-        navigate("/admin/dashboard", { replace: true });
-      }, 2000);
-    } catch (err) {
-      setStatus("error");
-      setErrorMsg(err.message || "Invalid credentials. Please try again.");
-    }
-  };
+  try {
+    // ✅ call ADMIN login API (NOT useAuth login)
+    const res = await api.post("/auth/admin/login", {
+      email,
+      password,
+    });
 
+    // ✅ store separately (VERY IMPORTANT)
+    localStorage.setItem("adminToken", res.data.accessToken);
+    localStorage.setItem("admin", JSON.stringify(res.data.admin));
+
+    setStatus("success");
+
+    setTimeout(() => {
+      navigate("/admin/dashboard", { replace: true });
+    }, 1500);
+
+  } catch (err) {
+    setStatus("error");
+
+    setErrorMsg(
+      err.response?.data?.message || "Invalid admin credentials"
+    );
+  }
+};
   return (
     <div className="h-screen w-full bg-[#f8fafc] flex items-center justify-center overflow-y-auto py-12 px-2 font-sans">
       <motion.div
