@@ -11,10 +11,10 @@ import {
   Eye,
   EyeOff
 } from "lucide-react";
-import { api } from "../../utils/api.js";
+import { useAuth } from "../context/AuthContext";
 
 export default function AdminLogin() {
-  
+  const { login } = useAuth();  
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -23,34 +23,23 @@ export default function AdminLogin() {
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async (e) => {
+ const handleLogin = async (e) => {
   e.preventDefault();
   setStatus("loading");
   setErrorMsg("");
 
   try {
-    // ✅ call ADMIN login API (NOT useAuth login)
-    const res = await api.post("/auth/admin/login", {
-      email,
-      password,
-    });
-
-    // ✅ store separately (VERY IMPORTANT)
-    localStorage.setItem("adminToken", res.data.accessToken);
-    localStorage.setItem("admin", JSON.stringify(res.data.admin));
+    await login(email, password); // ✅ use context
 
     setStatus("success");
 
     setTimeout(() => {
       navigate("/admin/dashboard", { replace: true });
-    }, 1500);
+    }, 1000);
 
   } catch (err) {
     setStatus("error");
-
-    setErrorMsg(
-      err.response?.data?.message || "Invalid admin credentials"
-    );
+    setErrorMsg(err.message);
   }
 };
   return (
