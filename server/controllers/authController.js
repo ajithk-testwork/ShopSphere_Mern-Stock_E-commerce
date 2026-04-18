@@ -3,10 +3,15 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import sendEmail from "../utils/sendEmail.js";
 
-const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "1d",
-  });
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { 
+      userId: user._id,
+      role: user.role   // ✅ ADD THIS
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
 };
 
 const generateRefreshToken = (userId) => {
@@ -60,7 +65,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid Password" });
     }
 
-    const accessToken = generateAccessToken(user._id);
+    const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user._id);
 
     user.refreshToken = refreshToken;
@@ -103,7 +108,7 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
 
-    const newAccessToken = generateAccessToken(user._id);
+    const newAccessToken = generateAccessToken(user);
 
     res.json({ accessToken: newAccessToken });
   } catch (error) {
@@ -149,8 +154,17 @@ export const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // ✅ attach BOTH
     req.user = user;
+    req.role = decoded.role;
+
     next();
   } catch (error) {
     res.status(401).json({ message: "Invalid token" });
@@ -176,7 +190,7 @@ export const adminLogin = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const accessToken = generateAccessToken(user._id);
+    const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user._id);
 
     user.refreshToken = refreshToken;
@@ -230,8 +244,7 @@ export const logoutAdmin = async (req, res) => {
 };
 
 export const adminOnly = (req, res, next) => {
-  console.log("USER:", req.user);
-  if (req.user && req.user.role === "admin") {
+  if (req.role === "admin") {
     next();
   } else {
     res.status(403).json({ message: "Admin access only" });

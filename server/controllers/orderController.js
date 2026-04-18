@@ -62,11 +62,11 @@ console.log("EMAIL:", req.user?.email);
 
 
 export const getMyOrders = async (req, res) => {
-  console.log("REQ.USER ID:", req.user._id);
+  console.log("TOKEN USER ID:", req.user._id);
 
   const orders = await Order.find({
-    user: req.user._id, // ✅ FIXED (no ObjectId conversion)
-  }).sort({ createdAt: -1 });
+    user: req.user._id,
+  });
 
   console.log("FOUND ORDERS:", orders);
 
