@@ -34,8 +34,17 @@ import {
   removeCartItem,
   updateCartItem,
 } from "../controllers/cartController.js";
-import { getMyOrders, placeOrder, updateOrderStatus, getAllOrders } from "../controllers/orderController.js";
-import { createCheckoutSession, verifyPayment } from "../controllers/paymentController.js";
+import {
+  getMyOrders,
+  placeOrder,
+  updateOrderStatus,
+  getAllOrders,
+} from "../controllers/orderController.js";
+import {
+  createCheckoutSession,
+  verifyPayment,
+  paymentFailed
+} from "../controllers/paymentController.js";
 
 const router = express.Router();
 
@@ -59,13 +68,12 @@ router.get("/users/admin", protect, adminOnly, (req, res) => {
 });
 
 router.post("/auth/admin/login", adminLogin);
-router.post("/auth/admin/logout", protect,adminOnly, logoutAdmin);
+router.post("/auth/admin/logout", protect, adminOnly, logoutAdmin);
 
 //Public Product
 
 router.get("/products", getProduct);
 router.get("/products/:id", getProductId);
-
 
 // CATEGORY ROUTES
 router.post(
@@ -75,8 +83,6 @@ router.post(
   uploadCategoryImage.single("image"),
   createCategory,
 );
-
-
 
 router.get("/categories", getCategories);
 
@@ -91,7 +97,13 @@ router.post(
   upload.single("image"),
   createProduct,
 );
-router.put("/products/:id", protect, adminOnly,upload.single("image"), updateProduct);
+router.put(
+  "/products/:id",
+  protect,
+  adminOnly,
+  upload.single("image"),
+  updateProduct,
+);
 router.delete("/products/:id", protect, adminOnly, deleteProduct);
 
 //Cart
@@ -113,6 +125,7 @@ router.put("/orders/:id", protect, adminOnly, updateOrderStatus);
 //Payment
 router.post("/payments/create", protect, createCheckoutSession);
 router.post("/payments/verify", protect, verifyPayment);
+router.post("/payments/failed", protect, paymentFailed);
 
 //router.post("/payments/webhook", express.raw({ type: application.json}), stripeWebhook);
 

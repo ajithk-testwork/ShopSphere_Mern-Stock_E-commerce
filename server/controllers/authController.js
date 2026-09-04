@@ -6,6 +6,7 @@ import {
   welcomeEmail,
   forgotPasswordEmail,
   passwordChangedEmail,
+  loginEmail,
 } from "../utils/emailTemplates.js";
 
 const generateAccessToken = (user) => {
@@ -44,24 +45,24 @@ export const register = async (req, res) => {
       password: hashPassword,
     });
 
-   console.log("📧 Starting welcome email...");
-console.log("📧 To:", email);
+    console.log("📧 Starting welcome email...");
+    console.log("📧 To:", email);
 
-const emailHtml = welcomeEmail(name);
+    const emailHtml = welcomeEmail(name);
 
-console.log("📧 Template generated:", !!emailHtml);
+    console.log("📧 Template generated:", !!emailHtml);
 
-try {
-  const result = await sendEmail(
-    email,
-    "Welcome to ShopSphere 🎉",
-    emailHtml
-  );
+    try {
+      const result = await sendEmail(
+        email,
+        "Welcome to ShopSphere 🎉",
+        emailHtml,
+      );
 
-  console.log("✅ Welcome email completed:", result?.messageId);
-} catch (error) {
-  console.error("❌ Welcome email failed:", error);
-}
+      console.log("✅ Welcome email completed:", result?.messageId);
+    } catch (error) {
+      console.error("❌ Welcome email failed:", error);
+    }
 
     res.status(200).json({ message: "User Registered Successfully" });
   } catch (error) {
@@ -101,6 +102,14 @@ export const loginUser = async (req, res) => {
       secure: false,
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    sendEmail(
+      user.email,
+      "New Login to Your ShopSphere Account 🔐",
+      loginEmail(user.name),
+    ).catch((error) => {
+      console.error("Login email failed:", error.message);
     });
 
     res.json({

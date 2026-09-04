@@ -3,6 +3,7 @@ import Cart from "../models/Cart.js";
 import sendEmail from "../utils/sendEmail.js";
 
 import {
+  orderReceivedEmail,
   orderShippedEmail,
   orderDeliveredEmail,
 } from "../utils/emailTemplates.js";
@@ -49,6 +50,14 @@ export const placeOrder = async (req, res) => {
 
   console.log("USER FROM TOKEN:", req.user);
   console.log("EMAIL:", req.user?.email);
+
+  sendEmail(
+    order.userInfo.email,
+    "ShopSphere Order Received 🛒",
+    orderReceivedEmail(order.userInfo.name, order),
+  ).catch((error) => {
+    console.error("Order received email failed:", error.message);
+  });
 
   // ✅ clear cart
   cart.items = [];
@@ -118,9 +127,7 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    
     // SEND EMAIL WHEN ORDER IS DELIVERED
-  
 
     if (orderStatus === "delivered") {
       sendEmail(

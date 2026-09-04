@@ -84,13 +84,13 @@ const PaymentSuccess = () => {
                 {/* Product List */}
                 <div className="space-y-3">
                   {order.items.map((item) => {
-                    const product = item.product;
+                    
                     
                     // ✅ Updated Image Logic
-                    const imageUrl = product?.image
-                      ? product.image.startsWith("http")
-                        ? product.image 
-                        : `${BASE_URL}${product.image}`
+                    const imageUrl = item.image
+                      ? item.image.startsWith("http")
+                        ? item.image 
+                        : `${BASE_URL}${item.image}`
                       : "https://via.placeholder.com/600";
 
                     return (
@@ -102,7 +102,7 @@ const PaymentSuccess = () => {
                         <div className="w-14 h-14 md:w-16 md:h-16 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
                           <img 
                             src={imageUrl} 
-                            alt={product?.name || "Product"} 
+                            alt={item.name || "Product"} 
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -110,14 +110,14 @@ const PaymentSuccess = () => {
                         {/* Product Info */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight">
-                            {product?.name}
+                            {item.name}
                           </p>
                           <div className="flex justify-between items-center mt-1">
                             <p className="text-xs text-gray-500">
                               Qty: {item.quantity}
                             </p>
                             <p className="text-sm font-bold text-gray-800">
-                              ₹{(product?.price * item.quantity).toLocaleString()}
+                             ₹{(Number(item.price) * Number(item.quantity)).toLocaleString()}
                             </p>
                           </div>
                         </div>
