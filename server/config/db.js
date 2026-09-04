@@ -1,15 +1,23 @@
+import dns from "dns";
 import mongoose from "mongoose";
+
+// Use public DNS for MongoDB SRV lookup
+dns.setServers([
+  "8.8.8.8",
+  "1.1.1.1",
+]);
 
 const connectDB = async () => {
   try {
+    console.log("Starting MongoDB connection...");
+
     const conn = await mongoose.connect(process.env.MONGO_URL, {
-      serverSelectionTimeoutMS: 5000, // ✅ stop waiting forever
+      serverSelectionTimeoutMS: 15000,
     });
 
-    console.log("DB Connected!", conn.connection.host);
+    console.log("✅ DB Connected:", conn.connection.host);
   } catch (error) {
-    console.log("Mongoose connect error:", error.message);
-    process.exit(1); // ✅ stop server if DB fails
+    console.error("❌ MongoDB Error:", error.message);
   }
 };
 

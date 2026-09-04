@@ -2,15 +2,20 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import sendEmail from "../utils/sendEmail.js";
+import {
+  welcomeEmail,
+  forgotPasswordEmail,
+  passwordChangedEmail,
+} from "../utils/emailTemplates.js";
 
 const generateAccessToken = (user) => {
   return jwt.sign(
-    { 
+    {
       userId: user._id,
-      role: user.role   // ✅ ADD THIS
+      role: user.role, // ✅ ADD THIS
     },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "1d" },
   );
 };
 
@@ -38,6 +43,25 @@ export const register = async (req, res) => {
       email,
       password: hashPassword,
     });
+
+   console.log("📧 Starting welcome email...");
+console.log("📧 To:", email);
+
+const emailHtml = welcomeEmail(name);
+
+console.log("📧 Template generated:", !!emailHtml);
+
+try {
+  const result = await sendEmail(
+    email,
+    "Welcome to ShopSphere 🎉",
+    emailHtml
+  );
+
+  console.log("✅ Welcome email completed:", result?.messageId);
+} catch (error) {
+  console.error("❌ Welcome email failed:", error);
+}
 
     res.status(200).json({ message: "User Registered Successfully" });
   } catch (error) {
@@ -171,7 +195,6 @@ export const protect = async (req, res, next) => {
   }
 };
 
-
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -268,8 +291,8 @@ export const forgotPassword = async (req, res) => {
 
     await sendEmail(
       email,
-      "ShopSphere Password Reset OTP",
-      `Your OTP is <b>${otp}</b>. It expires in 10 minutes.`
+      "ShopSphere Password Reset OTP 🔐",
+      forgotPasswordEmail(otp),
     );
 
     res.json({ message: "OTP sent to email" });
@@ -296,22 +319,56 @@ export const verifyOtp = async (req, res) => {
 };
 
 export const resetPassword = async (req, res) => {
-  const { email, newPassword } = req.body;
+  try {
+    const { email, otp, newPassword } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (
+      !user.forgotPasswordOtp ||
+      user.forgotPasswordOtp !== otp ||
+      !user.forgotPasswordOtpExpire ||
+      user.forgotPasswordOtpExpire < Date.now()
+    ) {
+      return res.status(400).json({
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    user.forgotPasswordOtp = undefined;
+
+    user.forgotPasswordOtpExpire = undefined;
+
+    user.refreshToken = undefined;
+
+    await user.save();
+
+    sendEmail(
+      email,
+      "Your ShopSphere Password Was Changed ✅",
+      passwordChangedEmail(user.name),
+    ).catch((error) => {
+      console.error("Password changed email failed:", error.message);
+    });
+
+    res.json({
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+
+    res.status(500).json({
+      message: "Password reset failed",
+    });
   }
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  user.password = hashedPassword;
-  user.forgotPasswordOtp = undefined;
-  user.forgotPasswordOtpExpire = undefined;
-  user.refreshToken = undefined;
-
-
-  await user.save();
-
-  res.json({ message: "Password reset successful" });
 };

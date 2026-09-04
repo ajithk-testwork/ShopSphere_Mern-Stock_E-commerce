@@ -17,13 +17,15 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
 
   const handleModeChange = (newMode) => {
     setError("");
+
     setFormData({
       name: "",
       email: formData.email,
       password: "",
-      otp: "",
+      otp: newMode === "reset" ? formData.otp : "",
       newPassword: "",
     });
+
     setMode(newMode);
   };
 
@@ -74,6 +76,7 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
       } else if (mode === "reset") {
         await api.post("/auth/reset-password", {
           email: formData.email,
+          otp: formData.otp,
           newPassword: formData.newPassword,
         });
         setSuccess(true);
@@ -296,9 +299,13 @@ const AuthModal = ({ isOpen, onClose, mode, setMode }) => {
 const InputField = ({ label, type: originalType, ...props }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = originalType === "password";
-  
+
   // Determine actual input type based on state
-  const currentType = isPassword ? (showPassword ? "text" : "password") : originalType;
+  const currentType = isPassword
+    ? showPassword
+      ? "text"
+      : "password"
+    : originalType;
 
   return (
     <div className="group relative">
@@ -312,7 +319,7 @@ const InputField = ({ label, type: originalType, ...props }) => {
           required
           // Add extra padding to the right if it's a password field to make room for the icon
           className={`w-full px-5 py-3 rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-black outline-none transition-all text-sm font-medium placeholder:text-gray-300 ${
-            isPassword ? 'pr-12' : ''
+            isPassword ? "pr-12" : ""
           }`}
         />
         {isPassword && (
@@ -322,7 +329,11 @@ const InputField = ({ label, type: originalType, ...props }) => {
             className="absolute right-4 text-gray-400 hover:text-black transition-colors focus:outline-none flex items-center justify-center cursor-pointer"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+            {showPassword ? (
+              <EyeOff size={18} strokeWidth={2.5} />
+            ) : (
+              <Eye size={18} strokeWidth={2.5} />
+            )}
           </button>
         )}
       </div>

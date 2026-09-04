@@ -1,34 +1,40 @@
-import nodemailer from "nodemailer";
+import { BrevoClient } from "@getbrevo/brevo";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+const brevo = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY,
 });
 
-const sendEmail = async (to, subject, text) => {
+const sendEmail = async (to, subject, html) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"ShopSphere 🛒" <${process.env.EMAIL_USER}>`,
-      to,
+    console.log("📧 Sending email...");
+    console.log("📧 To:", to);
+    console.log("📧 Subject:", subject);
+
+    const result = await brevo.transactionalEmails.sendTransacEmail({
+      sender: {
+        email: process.env.BREVO_SENDER_EMAIL,
+        name: process.env.BREVO_SENDER_NAME || "ShopSphere",
+      },
+
+      to: [
+        {
+          email: to,
+        },
+      ],
+
       subject,
-      html: `
-        <div style="font-family:sans-serif">
-          <h2>${subject}</h2>
-          <p>${text}</p>
-        </div>
-      `,
+      htmlContent: html,
     });
 
-    console.log("✅ Email sent:", info.messageId);
+    console.log("✅ Brevo email sent:", result.messageId);
+
+    return result;
   } catch (error) {
-    console.error("❌ Email failed:", error);
-    throw error; // IMPORTANT (so controller catch works)
+    console.error("❌ Brevo email failed:", error);
+    throw error;
   }
 };
 
